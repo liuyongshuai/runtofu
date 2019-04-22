@@ -1,0 +1,61 @@
+hash: 2ef4be3035095235aad94992a9468e7c59993dc6f29281fb077ad4ec6ec9fc57
+updated: 2019-01-08T10:58:36.812611+08:00
+imports:
+- name: github.com/aliyun/aliyun-oss-go-sdk
+  version: 8205d1f41e7011ade0d6fb0dfcf4d41859f2c8c5
+  subpackages:
+  - oss
+- name: github.com/BurntSushi/toml
+  version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
+- name: github.com/cespare/xxhash
+  version: 3767db7a7e183c0ad3395680d460d0b61534ae7b
+- name: github.com/garyburd/redigo
+  version: 569eae59ada904ea8db7a225c2b47165af08735a
+  subpackages:
+  - internal
+  - redis
+- name: github.com/go-sql-driver/mysql
+  version: c45f530f8e7fe40f4687eaa50d0c8c5f1b66f9e0
+- name: github.com/kr/pretty
+  version: 73f6ac0b30a98e433b289500d779f50c1a6f0712
+- name: github.com/kr/text
+  version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
+- name: github.com/liuyongshuai/goUtils
+  version: 7007bb17ec60695c8c23e866cf4a4645a55294f2
+- name: github.com/liuyongshuai/wego
+  version: 5d84c0a909c3a57b69978cb47b659be69e6d2bc5
+  subpackages:
+  - context
+  - controller
+  - router
+- name: github.com/stretchr/testify
+  version: ffdc059bfe9ce6a4e144ba849dbedead332c6053
+  subpackages:
+  - mock
+- name: golang.org/x/crypto
+  version: ff983b9c42bc9fbf91556e191cc8efb585c16908
+  repo: https://github.com/golang/crypto.git
+  subpackages:
+  - ssh
+  - ssh/terminal
+- name: golang.org/x/net
+  version: 45ffb0cd1ba084b73e26dee67e667e1be5acce83
+  repo: https://github.com/golang/net.git
+  subpackages:
+  - context
+- name: golang.org/x/sync
+  version: 37e7f081c4d4c64e13b10787722085407fe5d15f
+  repo: https://github.com/golang/sync.git
+  subpackages:
+  - errgroup
+- name: golang.org/x/sys
+  version: 20be8e55dc7b4b7a1b1660728164a8509d8c9209
+  repo: https://github.com/golang/sys.git
+  subpackages:
+  - unix
+  - windows
+- name: google.golang.org/appengine
+  version: e9657d882bb81064595ca3b56cbe2546bbabf7b1
+  subpackages:
+  - cloudsql
+testImports: []

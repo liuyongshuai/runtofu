@@ -1,0 +1,25 @@
+package: github.com/liuyongshuai/runtofuAdmin
+import:
+- package: golang.org/x/sys
+  repo: https://github.com/golang/sys.git
+  subpackages:
+  - unix
+- package: github.com/stretchr/testify
+  subpackages:
+  - mock
+- package: golang.org/x/crypto
+  repo: https://github.com/golang/crypto.git
+  subpackages:
+  - ssh
+- package: golang.org/x/sync
+  repo: https://github.com/golang/sync.git
+  subpackages:
+  - errgroup
+- package: golang.org/x/net
+  repo: https://github.com/golang/net.git
+  subpackages:
+  - context
+- package: github.com/liuyongshuai/goUtils
+  version: master
+- package: github.com/liuyongshuai/wego
+  version: master
