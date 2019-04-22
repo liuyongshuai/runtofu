@@ -3,7 +3,7 @@
  * @package     config
  * @date        2018-02-07 14:09
  */
-package config
+package configer
 
 import (
 	"errors"
