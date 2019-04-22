@@ -6,8 +6,8 @@
 package controller
 
 import (
-	"github.com/liuyongshuai/runtofuAdmin/model"
-	"github.com/liuyongshuai/runtofuAdmin/utils"
+	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/utils"
 )
 
 type ArticleListController struct {

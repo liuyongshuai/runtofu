@@ -2,9 +2,9 @@ package wego
 
 import (
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/wego/context"
-	"github.com/liuyongshuai/wego/controller"
-	"github.com/liuyongshuai/wego/router"
+	"github.com/liuyongshuai/runtofu/goweb/context"
+	"github.com/liuyongshuai/runtofu/goweb/controller"
+	"github.com/liuyongshuai/runtofu/goweb/router"
 	"net/http"
 	"reflect"
 	"sync"

@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 	"time"
 )

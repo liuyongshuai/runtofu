@@ -7,7 +7,7 @@ package ajax
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 )
 
 type AdminAjaxArticleInfoController struct {

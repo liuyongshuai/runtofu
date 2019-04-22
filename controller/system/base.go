@@ -7,8 +7,8 @@ package system
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/runtofuAdmin/controller"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/controller"
+	"github.com/liuyongshuai/runtofu/model"
 )
 
 //system层的基类

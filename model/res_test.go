@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/kr/pretty"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/config"
+	"github.com/liuyongshuai/runtofu/config"
 	"io/ioutil"
 	"os"
 	"testing"

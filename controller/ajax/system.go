@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/config"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 	"time"
 )

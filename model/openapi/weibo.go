@@ -11,7 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/config"
+	"github.com/liuyongshuai/runtofu/config"
 	"strings"
 )
 

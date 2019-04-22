@@ -7,7 +7,7 @@ package ajax
 
 import (
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 )
 

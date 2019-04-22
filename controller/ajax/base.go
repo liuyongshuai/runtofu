@@ -8,7 +8,7 @@ package ajax
 import (
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/controller"
+	"github.com/liuyongshuai/runtofu/controller"
 	"strings"
 )
 

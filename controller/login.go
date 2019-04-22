@@ -7,7 +7,7 @@ package controller
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 )
 
 type LoginController struct {

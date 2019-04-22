@@ -6,7 +6,7 @@
 package ajax
 
 import (
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 )
 
 type AdminAjaxChangePasswdController struct {

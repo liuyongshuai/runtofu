@@ -6,10 +6,10 @@
 package routers
 
 import (
-	"github.com/liuyongshuai/runtofuAdmin/controller"
-	"github.com/liuyongshuai/runtofuAdmin/controller/ajax"
-	"github.com/liuyongshuai/runtofuAdmin/controller/system"
-	"github.com/liuyongshuai/wego/router"
+	"github.com/liuyongshuai/runtofu/controller"
+	"github.com/liuyongshuai/runtofu/controller/ajax"
+	"github.com/liuyongshuai/runtofu/controller/system"
+	"github.com/liuyongshuai/runtofu/goweb/router"
 )
 
 var AdminRouterList []*router.WeGoRouterItem

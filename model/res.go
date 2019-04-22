@@ -10,8 +10,8 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/garyburd/redigo/redis"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofuAdmin/config"
-	"github.com/liuyongshuai/runtofuAdmin/model/openapi"
+	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/model/openapi"
 )
 
 const (

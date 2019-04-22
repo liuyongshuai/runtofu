@@ -4,13 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/kr/pretty"
-	"github.com/liuyongshuai/runtofuAdmin/config"
-	"github.com/liuyongshuai/runtofuAdmin/controller"
-	"github.com/liuyongshuai/runtofuAdmin/model"
-	"github.com/liuyongshuai/runtofuAdmin/routers"
-	"github.com/liuyongshuai/runtofuAdmin/utils"
+	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/controller"
+	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/routers"
+	"github.com/liuyongshuai/runtofu/utils"
+	"github.com/liuyongshuai/runtofu/goweb"
+	"github.com/liuyongshuai/runtofu/goweb/context"
 	"github.com/liuyongshuai/wego"
-	"github.com/liuyongshuai/wego/context"
 	"os"
 )
 
@@ -40,7 +41,7 @@ func main() {
 	ch := make(chan interface{})
 
 	//admin管理系统的一些设置项
-	adminApp := wego.NewWeGoAPP(). //新建一个app
+	adminApp := goweb.NewWeGoAPP(). //新建一个app
 					SetPort(conf.Http.Port).                                     //监听端口
 					SetTplDir(conf.Http.TplDir).                                 //模板根目录
 					SetTplExt(conf.Http.TplExt).                                 //模板扩展名称

@@ -2,8 +2,8 @@ package wego
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/wego/controller"
-	"github.com/liuyongshuai/wego/router"
+	"github.com/liuyongshuai/runtofu/goweb/controller"
+	"github.com/liuyongshuai/runtofu/goweb/router"
 	"html/template"
 	"net/http"
 )

@@ -6,7 +6,7 @@
 package controller
 
 import (
-	"github.com/liuyongshuai/runtofuAdmin/model"
+	"github.com/liuyongshuai/runtofu/model"
 )
 
 type TagListController struct {

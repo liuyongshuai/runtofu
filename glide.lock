@@ -22,7 +22,7 @@ imports:
   version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
 - name: github.com/liuyongshuai/goUtils
   version: 7007bb17ec60695c8c23e866cf4a4645a55294f2
-- name: github.com/liuyongshuai/wego
+- name: github.com/liuyongshuai/runtofu/goweb
   version: 5d84c0a909c3a57b69978cb47b659be69e6d2bc5
   subpackages:
   - context
