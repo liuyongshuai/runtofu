@@ -19,7 +19,7 @@ var (
 func TestHttpClient_Get(t *testing.T) {
 	testStart()
 
-	url := "http://10.96.114.84/add.php?a=1&b=3"
+	url := "http://10.96.114.84/add1.php?a=1&b=3"
 	client := NewHttpClient(url, context.Background())
 	client.AddCookie("c1", "v1")
 	client.SetReferer("http://microsoft.com")
@@ -40,7 +40,7 @@ func TestHttpClient_Get(t *testing.T) {
 func TestHttpClient_Post(t *testing.T) {
 	testStart()
 
-	url := "http://10.96.114.84/add.php"
+	url := "http://10.96.114.84/add1.php"
 	client := NewHttpClient(url, context.Background())
 	client.SetField("singleValue", "value")
 	client.AddField("multiValue", "v1")
@@ -61,7 +61,7 @@ func TestHttpClient_Post(t *testing.T) {
 func TestHttpClient_PostUploadFiles(t *testing.T) {
 	testStart()
 
-	url := "http://10.96.114.84/add.php"
+	url := "http://10.96.114.84/add1.php"
 	client := NewHttpClient(url, context.Background())
 	client.SetField("singleValue", "value")
 	client.AddField("multiValue", "v1")
@@ -77,7 +77,7 @@ func TestHttpClient_PostUploadFiles(t *testing.T) {
 	fmt.Println(string(resp.GetBody()))
 	resp, _ = client.Post()
 	fmt.Println(string(resp.GetBody()))
-	client.SetUrl("http://10.96.114.84/add.php")
+	client.SetUrl("http://10.96.114.84/add1.php")
 	client.SetHost("phpmyadmin.wendao.com")
 	resp, _ = client.Post()
 	fmt.Println(string(resp.GetBody()))
@@ -89,7 +89,7 @@ func TestHttpClient_PostUploadFiles(t *testing.T) {
 func TestHttpClient_UploadFiles(t *testing.T) {
 	testStart()
 
-	url := "http://10.96.114.84/add.php"
+	url := "http://10.96.114.84/add1.php"
 	client := NewHttpClient(url, context.Background())
 	client.AddCookie("c1", "v1")
 	client.AddFile("abc", "./http_client_test.go", "my.cnf")
@@ -101,7 +101,7 @@ func TestHttpClient_UploadFiles(t *testing.T) {
 	fmt.Println(string(resp.GetBody()))
 	resp, _ = client.Post()
 	fmt.Println(string(resp.GetBody()))
-	client.SetUrl("http://10.96.114.84/add.php")
+	client.SetUrl("http://10.96.114.84/add1.php")
 	client.SetHost("phpmyadmin.wendao.com")
 	resp, _ = client.Post()
 	fmt.Println(string(resp.GetBody()))
@@ -113,7 +113,7 @@ func TestHttpClient_UploadFiles(t *testing.T) {
 func TestHttpClient_SetRawPostBody(t *testing.T) {
 	testStart()
 
-	url := "http://10.96.114.84/add.php"
+	url := "http://10.96.114.84/add1.php"
 	client := NewHttpClient(url, context.Background())
 	client.AddCookie("c1", "v1")
 	client.SetUserAgent(testUserAgent)

@@ -215,7 +215,7 @@ func (ehc *HttpClient) SetContentType(ct string) *HttpClient {
 
 //设置json内容类型（设置header的相应值）
 func (ehc *HttpClient) SetContentTypeJson() *HttpClient {
-	ehc.SetHeader("Content-Type", "application/json")
+	ehc.SetHeader("Content-Type", "application/json;charset=UTF-8")
 	return ehc
 }
 
@@ -328,44 +328,44 @@ func (ehc *HttpClient) SetRawRequestBody(b []byte) *HttpClient {
 }
 
 //发起GET请求并返回数据
-func (ehc *HttpClient) Get() (HttpResponse, error) {
+func (ehc *HttpClient) Get() (*HttpResponse, error) {
 	httpReq, err := http.NewRequest("GET", ehc.url, nil)
 	if err != nil {
 		LogErrorf("_HttpClient_Get_error||%v||err=%v||http.NewRequest failed", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	response, err := ehc.do(httpReq)
 	if err != nil {
 		LogErrorf("_HttpClient_Get_failure||%v||err=%v", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	return ehc.processResponse(response, err)
 }
 
 //发起POST请求并返回数据，没有上传文件，只是简单的模拟提交表单操作
-func (ehc *HttpClient) PostForm() (HttpResponse, error) {
+func (ehc *HttpClient) PostForm() (*HttpResponse, error) {
 	ehc.SetContentTypeFormUrlEncoded()
 	return ehc.Post()
 }
 
 //发起head请求并返回数据
-func (ehc *HttpClient) Head() (HttpResponse, error) {
+func (ehc *HttpClient) Head() (*HttpResponse, error) {
 	httpReq, err := http.NewRequest("HEAD", ehc.url, nil)
 	if err != nil {
 		LogErrorf("_HttpClient_Head_error||%v||err=%v||http.NewRequest failed", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	resp, err := ehc.do(httpReq)
 	if err != nil {
 		LogErrorf("_HttpClient_Head_failure||%v||head http request failed|||err=%v", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	return ehc.processResponse(resp, err)
 }
 
 //发起POST请求并返回数据，有字段、上传文件，或者raw post用的
 //一般，raw post body 不会和上传文件、其他from表单信息同时出现
-func (ehc *HttpClient) Post() (HttpResponse, error) {
+func (ehc *HttpClient) Post() (*HttpResponse, error) {
 	//如果buf为空，要用KV值、上传的文件填充buf，否则就是要POST的raw body
 	//因为writer在关闭时会在数据的尾部加上一串东西
 	var writer *multipart.Writer
@@ -378,7 +378,7 @@ func (ehc *HttpClient) Post() (HttpResponse, error) {
 	httpReq, err := http.NewRequest("POST", ehc.url, &tmpBuf)
 	if err != nil {
 		LogErrorf("_HttpClient_Post_error||%v||err=%v||http.NewRequest failed", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	//提取content-type类型，如果为空要设置值
 	contentType := ehc.GetContentType()
@@ -389,7 +389,7 @@ func (ehc *HttpClient) Post() (HttpResponse, error) {
 	resp, err := ehc.do(httpReq)
 	if err != nil {
 		LogErrorf("_HttpClient_Post_failure||%v||err=%v", ehc.getComErrMsg(), err)
-		return HttpResponse{}, err
+		return NewHttpResponse(nil), err
 	}
 	return ehc.processResponse(resp, err)
 }
@@ -467,8 +467,8 @@ func (ehc *HttpClient) getComErrMsg() string {
 }
 
 //处理响应信息
-func (ehc *HttpClient) processResponse(response *http.Response, err error) (HttpResponse, error) {
-	ret := HttpResponse{header: make(map[string]string)}
+func (ehc *HttpClient) processResponse(response *http.Response, err error) (*HttpResponse, error) {
+	ret := NewHttpResponse(response)
 	commErrMsg := ehc.getComErrMsg()
 	if err != nil {
 		ret.err = err

@@ -11,8 +11,60 @@ import (
 	"strings"
 )
 
+type ColorType int
+
+const (
+	ColorType_Invalid ColorType = iota
+	ColorType_Green
+	ColorType_LightGreen
+	ColorType_Cyan
+	ColorType_LightCyan
+	ColorType_Red
+	ColorType_LightRed
+	ColorType_Yellow
+	ColorType_Black
+	ColorType_DarkGray
+	ColorType_LightGray
+	ColorType_White
+	ColorType_Blue
+	ColorType_LightBlue
+	ColorType_Purple
+	ColorType_LightPurple
+	ColorType_Brown
+)
+
+var (
+	ColorFuncMap = map[ColorType]ColorFunc{
+		ColorType_Green:       Green,
+		ColorType_LightGreen:  LightGreen,
+		ColorType_Cyan:        Cyan,
+		ColorType_LightCyan:   LightCyan,
+		ColorType_Red:         Red,
+		ColorType_LightRed:    LightRed,
+		ColorType_Yellow:      Yellow,
+		ColorType_Black:       Black,
+		ColorType_DarkGray:    DarkGray,
+		ColorType_LightGray:   LightGray,
+		ColorType_White:       White,
+		ColorType_Blue:        Blue,
+		ColorType_LightBlue:   LightBlue,
+		ColorType_Purple:      Purple,
+		ColorType_LightPurple: LightPurple,
+		ColorType_Brown:       Brown,
+	}
+	colorFns = []ColorFunc{Green, LightGreen, Cyan, LightCyan, Red, LightRed, Yellow, Black, DarkGray, LightGray, White, Blue, LightBlue, Purple, LightPurple, Brown}
+)
+
 //所有的颜色函数
 type ColorFunc func(string, ...interface{}) string
+
+//根据颜色获取颜色函数
+func GetColorFunc(t ColorType) (ColorFunc, bool) {
+	if fn, ok := ColorFuncMap[t]; ok {
+		return fn, ok
+	}
+	return nil, false
+}
 
 //绿色字体，modifier里，第一个控制闪烁，第二个控制下划线
 func Green(str string, modifier ...interface{}) string {

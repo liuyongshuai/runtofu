@@ -61,26 +61,30 @@ func RuneTruncate(s string, w int, tail string) string {
 }
 
 //将字符串截断成许多行，每行的长度为w
-func RuneWrap(s string, w int) string {
+//返回截断成多行的字符串及行数
+func RuneWrap(s string, w int) (string, int) {
 	width := 0
+	lineNum := 1
 	out := ""
 	for _, r := range []rune(s) {
 		cw := RuneWidth(r)
 		if r == '\n' {
 			out += string(r)
+			lineNum++
 			width = 0
 			continue
 		} else if width+cw > w {
 			out += "\n"
 			width = 0
 			out += string(r)
+			lineNum++
 			width += cw
 			continue
 		}
 		out += string(r)
 		width += cw
 	}
-	return out
+	return out, lineNum
 }
 
 //填充左边到指定的宽度

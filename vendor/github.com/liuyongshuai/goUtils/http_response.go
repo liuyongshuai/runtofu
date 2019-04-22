@@ -5,6 +5,13 @@ package goUtils
 
 import "net/http"
 
+func NewHttpResponse(resp *http.Response) *HttpResponse {
+	return &HttpResponse{
+		header:   make(map[string]string),
+		response: resp,
+	}
+}
+
 //响应结构体，在response基础上封装
 type HttpResponse struct {
 	body             []byte            //响应的body
@@ -17,6 +24,7 @@ type HttpResponse struct {
 	location         string            //当statusCode为3XX如301时重定向的链接
 	err              error             //请求的出错信息
 	transferEncoding []string          //所用的编码信息
+	response         *http.Response    //原始的响应信息
 }
 
 //提取body信息

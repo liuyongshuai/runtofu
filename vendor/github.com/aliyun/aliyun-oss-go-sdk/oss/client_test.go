@@ -5,10 +5,12 @@
 package oss
 
 import (
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -42,30 +44,31 @@ var (
 	stsARN       = os.Getenv("OSS_TEST_STS_ARN")
 )
 
-const (
+var (
 	// prefix of bucket name for bucket ops test
-	bucketNamePrefix = "go-sdk-test-bucket-abcx-"
+	bucketNamePrefix = "go-sdk-test-bucket-"
 	// bucket name for object ops test
-	bucketName        = "go-sdk-test-bucket-abcx-for-object"
-	archiveBucketName = "go-sdk-test-bucket-abcx-for-archive"
+	bucketName        = bucketNamePrefix + randLowStr(6)
+	archiveBucketName = bucketNamePrefix + "arch-" + randLowStr(6)
 	// object name for object ops test
-	objectNamePrefix = "go-sdk-test-object-abcx-"
+	objectNamePrefix = "go-sdk-test-object-"
 	// sts region is one and only hangzhou
 	stsRegion = "cn-hangzhou"
 )
 
 var (
-	logPath        = "go_sdk_test_" + time.Now().Format("20060102_150405") + ".log"
-	testLogFile, _ = os.OpenFile(logPath, os.O_RDWR|os.O_CREATE, 0664)
-	testLogger     = log.New(testLogFile, "", log.Ldate|log.Ltime|log.Lshortfile)
-	letters        = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	logPath            = "go_sdk_test_" + time.Now().Format("20060102_150405") + ".log"
+	testLogFile, _     = os.OpenFile(logPath, os.O_RDWR|os.O_CREATE, 0664)
+	testLogger         = log.New(testLogFile, "", log.Ldate|log.Ltime|log.Lshortfile)
+	letters            = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	timeoutInOperation = 3 * time.Second
 )
 
 func randStr(n int) string {
 	b := make([]rune, n)
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	randMarker := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range b {
-		b[i] = letters[r.Intn(len(letters))]
+		b[i] = letters[randMarker.Intn(len(letters))]
 	}
 	return string(b)
 }
@@ -117,23 +120,37 @@ func (s *OssClientSuite) deleteBucket(client *Client, bucketName string, c *C) {
 	c.Assert(err, IsNil)
 
 	// Delete Object
-	lor, err := bucket.ListObjects()
-	c.Assert(err, IsNil)
-
-	for _, object := range lor.Objects {
-		err = bucket.DeleteObject(object.Key)
+	marker := Marker("")
+	for {
+		lor, err := bucket.ListObjects(marker)
 		c.Assert(err, IsNil)
+		for _, object := range lor.Objects {
+			err = bucket.DeleteObject(object.Key)
+			c.Assert(err, IsNil)
+		}
+		marker = Marker(lor.NextMarker)
+		if !lor.IsTruncated {
+			break
+		}
 	}
 
 	// Delete Part
-	lmur, err := bucket.ListMultipartUploads()
-	c.Assert(err, IsNil)
-
-	for _, upload := range lmur.Uploads {
-		var imur = InitiateMultipartUploadResult{Bucket: bucketName,
-			Key: upload.Key, UploadID: upload.UploadID}
-		err = bucket.AbortMultipartUpload(imur)
+	keyMarker := KeyMarker("")
+	uploadIDMarker := UploadIDMarker("")
+	for {
+		lmur, err := bucket.ListMultipartUploads(keyMarker, uploadIDMarker)
 		c.Assert(err, IsNil)
+		for _, upload := range lmur.Uploads {
+			var imur = InitiateMultipartUploadResult{Bucket: bucketName,
+				Key: upload.Key, UploadID: upload.UploadID}
+			err = bucket.AbortMultipartUpload(imur)
+			c.Assert(err, IsNil)
+		}
+		keyMarker = KeyMarker(lmur.NextKeyMarker)
+		uploadIDMarker = UploadIDMarker(lmur.NextUploadIDMarker)
+		if !lmur.IsTruncated {
+			break
+		}
 	}
 
 	// Delete Bucket
@@ -151,7 +168,7 @@ func (s *OssClientSuite) TearDownTest(c *C) {
 
 // TestCreateBucket
 func (s *OssClientSuite) TestCreateBucket(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tcb"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -160,8 +177,8 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 	client.DeleteBucket(bucketNameTest)
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	//sleep 5 seconds after create bucket
-	time.Sleep(5 * time.Second)
+	//sleep 3 seconds after create bucket
+	time.Sleep(timeoutInOperation)
 
 	// verify bucket is exist
 	found, err := client.IsBucketExist(bucketNameTest)
@@ -174,12 +191,12 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// CreateBucket creates with ACLPublicRead
 	err = client.CreateBucket(bucketNameTest, ACL(ACLPublicRead))
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -187,11 +204,12 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// ACLPublicReadWrite
 	err = client.CreateBucket(bucketNameTest, ACL(ACLPublicReadWrite))
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -199,11 +217,12 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// ACLPrivate
 	err = client.CreateBucket(bucketNameTest, ACL(ACLPrivate))
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -215,9 +234,10 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 
 	// Create bucket with configuration and test GetBucketInfo
 	for _, storage := range []StorageClassType{StorageStandard, StorageIA, StorageArchive} {
-		bucketNameTest := bucketNamePrefix + randLowStr(5)
+		bucketNameTest := bucketNamePrefix + randLowStr(6)
 		err = client.CreateBucket(bucketNameTest, StorageClass(storage), ACL(ACLPublicRead))
 		c.Assert(err, IsNil)
+		time.Sleep(timeoutInOperation)
 
 		res, err := client.GetBucketInfo(bucketNameTest)
 		c.Assert(err, IsNil)
@@ -236,9 +256,10 @@ func (s *OssClientSuite) TestCreateBucket(c *C) {
 
 	// Create bucket with configuration and test ListBuckets
 	for _, storage := range []StorageClassType{StorageStandard, StorageIA, StorageArchive} {
-		bucketNameTest := bucketNamePrefix + randLowStr(5)
+		bucketNameTest := bucketNamePrefix + randLowStr(6)
 		err = client.CreateBucket(bucketNameTest, StorageClass(storage))
 		c.Assert(err, IsNil)
+		time.Sleep(timeoutInOperation)
 
 		res, err := client.GetBucketInfo(bucketNameTest)
 		c.Assert(err, IsNil)
@@ -269,14 +290,14 @@ func (s *OssClientSuite) TestCreateBucketNegative(c *C) {
 	testLogger.Println(err)
 
 	// ACL invalid
-	err = client.CreateBucket(bucketNamePrefix+"tcbn", ACL("InvaldAcl"))
+	err = client.CreateBucket(bucketNamePrefix+randLowStr(6), ACL("InvaldAcl"))
 	c.Assert(err, NotNil)
 	testLogger.Println(err)
 }
 
 // TestDeleteBucket
 func (s *OssClientSuite) TestDeleteBucket(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdb"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -284,7 +305,7 @@ func (s *OssClientSuite) TestDeleteBucket(c *C) {
 	// Create
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// Check
 	found, err := client.IsBucketExist(bucketNameTest)
@@ -294,7 +315,7 @@ func (s *OssClientSuite) TestDeleteBucket(c *C) {
 	// Delete
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(3 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// Check
 	found, err = client.IsBucketExist(bucketNameTest)
@@ -307,7 +328,7 @@ func (s *OssClientSuite) TestDeleteBucket(c *C) {
 
 // TestDeleteBucketNegative
 func (s *OssClientSuite) TestDeleteBucketNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbn"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -344,9 +365,10 @@ func (s *OssClientSuite) TestDeleteBucketNegative(c *C) {
 
 // TestListBucket
 func (s *OssClientSuite) TestListBucket(c *C) {
-	var bucketNameLbOne = bucketNamePrefix + "tlb1"
-	var bucketNameLbTwo = bucketNamePrefix + "tlb2"
-	var bucketNameLbThree = bucketNamePrefix + "tlb3"
+	var prefix = bucketNamePrefix + randLowStr(6)
+	var bucketNameLbOne = prefix + "tlb1"
+	var bucketNameLbTwo = prefix + "tlb2"
+	var bucketNameLbThree = prefix + "tlb3"
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -360,7 +382,7 @@ func (s *OssClientSuite) TestListBucket(c *C) {
 	c.Assert(err, IsNil)
 
 	// ListBuckets, specified prefix
-	lbr, err := client.ListBuckets(Prefix(bucketNamePrefix), MaxKeys(2))
+	lbr, err := client.ListBuckets(Prefix(prefix), MaxKeys(2))
 	c.Assert(err, IsNil)
 	c.Assert(len(lbr.Buckets), Equals, 2)
 
@@ -390,9 +412,10 @@ func (s *OssClientSuite) TestListBucket(c *C) {
 
 // TestListBucket
 func (s *OssClientSuite) TestIsBucketExist(c *C) {
-	var bucketNameLbOne = bucketNamePrefix + "tibe1"
-	var bucketNameLbTwo = bucketNamePrefix + "tibe11"
-	var bucketNameLbThree = bucketNamePrefix + "tibe111"
+	var prefix = bucketNamePrefix + randLowStr(6)
+	var bucketNameLbOne = prefix + "tibe1"
+	var bucketNameLbTwo = prefix + "tibe11"
+	var bucketNameLbThree = prefix + "tibe111"
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -419,11 +442,11 @@ func (s *OssClientSuite) TestIsBucketExist(c *C) {
 	c.Assert(exist, Equals, true)
 
 	// Not exist
-	exist, err = client.IsBucketExist(bucketNamePrefix + "tibe")
+	exist, err = client.IsBucketExist(prefix + "tibe")
 	c.Assert(err, IsNil)
 	c.Assert(exist, Equals, false)
 
-	exist, err = client.IsBucketExist(bucketNamePrefix + "tibe1111")
+	exist, err = client.IsBucketExist(prefix + "tibe1111")
 	c.Assert(err, IsNil)
 	c.Assert(exist, Equals, false)
 
@@ -442,7 +465,7 @@ func (s *OssClientSuite) TestIsBucketExist(c *C) {
 
 // TestSetBucketAcl
 func (s *OssClientSuite) TestSetBucketAcl(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsba"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -458,7 +481,7 @@ func (s *OssClientSuite) TestSetBucketAcl(c *C) {
 	// Set ACL_PUBLIC_R
 	err = client.SetBucketACL(bucketNameTest, ACLPublicRead)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -467,7 +490,7 @@ func (s *OssClientSuite) TestSetBucketAcl(c *C) {
 	// Set ACL_PUBLIC_RW
 	err = client.SetBucketACL(bucketNameTest, ACLPublicReadWrite)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -476,9 +499,7 @@ func (s *OssClientSuite) TestSetBucketAcl(c *C) {
 	// Set ACL_PUBLIC_RW
 	err = client.SetBucketACL(bucketNameTest, ACLPrivate)
 	c.Assert(err, IsNil)
-	err = client.SetBucketACL(bucketNameTest, ACLPrivate)
-	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -490,7 +511,7 @@ func (s *OssClientSuite) TestSetBucketAcl(c *C) {
 
 // TestSetBucketAclNegative
 func (s *OssClientSuite) TestBucketAclNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsban"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -508,7 +529,7 @@ func (s *OssClientSuite) TestBucketAclNegative(c *C) {
 
 // TestGetBucketAcl
 func (s *OssClientSuite) TestGetBucketAcl(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tgba"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -516,6 +537,7 @@ func (s *OssClientSuite) TestGetBucketAcl(c *C) {
 	// Private
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	res, err := client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -523,12 +545,12 @@ func (s *OssClientSuite) TestGetBucketAcl(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// PublicRead
 	err = client.CreateBucket(bucketNameTest, ACL(ACLPublicRead))
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -536,12 +558,12 @@ func (s *OssClientSuite) TestGetBucketAcl(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// PublicReadWrite
 	err = client.CreateBucket(bucketNameTest, ACL(ACLPublicReadWrite))
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -553,7 +575,7 @@ func (s *OssClientSuite) TestGetBucketAcl(c *C) {
 
 // TestGetBucketAcl
 func (s *OssClientSuite) TestGetBucketLocation(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tgbl"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -571,7 +593,7 @@ func (s *OssClientSuite) TestGetBucketLocation(c *C) {
 
 // TestGetBucketLocationNegative
 func (s *OssClientSuite) TestGetBucketLocationNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tgblg"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -587,9 +609,9 @@ func (s *OssClientSuite) TestGetBucketLocationNegative(c *C) {
 
 // TestSetBucketLifecycle
 func (s *OssClientSuite) TestSetBucketLifecycle(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbl"
-	var rule1 = BuildLifecycleRuleByDate("idone", "one", true, 2015, 11, 11)
-	var rule2 = BuildLifecycleRuleByDays("idtwo", "two", true, 3)
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
+	var rule1 = BuildLifecycleRuleByDate("rule1", "one", true, 2015, 11, 11)
+	var rule2 = BuildLifecycleRuleByDays("rule2", "two", true, 3)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -608,7 +630,7 @@ func (s *OssClientSuite) TestSetBucketLifecycle(c *C) {
 	res, err := client.GetBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(len(res.Rules), Equals, 1)
-	c.Assert(res.Rules[0].ID, Equals, "idone")
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
 
 	err = client.DeleteBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -619,25 +641,21 @@ func (s *OssClientSuite) TestSetBucketLifecycle(c *C) {
 	c.Assert(err, IsNil)
 
 	// Eliminate effect of cache
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(len(res.Rules), Equals, 2)
-	c.Assert(res.Rules[0].ID, Equals, "idone")
-	c.Assert(res.Rules[1].ID, Equals, "idtwo")
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
+	c.Assert(res.Rules[1].ID, Equals, "rule2")
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
 }
 
-// TestDeleteBucketLifecycle
-func (s *OssClientSuite) TestDeleteBucketLifecycle(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbl"
-
-	var rule1 = BuildLifecycleRuleByDate("idone", "one", true, 2015, 11, 11)
-	var rule2 = BuildLifecycleRuleByDays("idtwo", "two", true, 3)
-	var rules = []LifecycleRule{rule1, rule2}
+// TestSetBucketLifecycleNew
+func (s *OssClientSuite) TestSetBucketLifecycleNew(c *C) {
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -645,12 +663,219 @@ func (s *OssClientSuite) TestDeleteBucketLifecycle(c *C) {
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
 
+	//invalid status of lifecyclerule
+	expiration := LifecycleExpiration{
+		Days: 30,
+	}
+	rule := LifecycleRule{
+		ID:         "rule1",
+		Prefix:     "one",
+		Status:     "Invalid",
+		Expiration: &expiration,
+	}
+	rules := []LifecycleRule{rule}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, NotNil)
+
+	//invalid value of CreatedBeforeDate
+	expiration = LifecycleExpiration{
+		CreatedBeforeDate: randStr(10),
+	}
+	rule = LifecycleRule{
+		ID:         "rule1",
+		Prefix:     "one",
+		Status:     "Enabled",
+		Expiration: &expiration,
+	}
+	rules = []LifecycleRule{rule}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, NotNil)
+
+	//invalid value of Days
+	abortMPU := LifecycleAbortMultipartUpload{
+		Days: -30,
+	}
+	rule = LifecycleRule{
+		ID:                   "rule1",
+		Prefix:               "one",
+		Status:               "Enabled",
+		AbortMultipartUpload: &abortMPU,
+	}
+	rules = []LifecycleRule{rule}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, NotNil)
+
+	expiration = LifecycleExpiration{
+		CreatedBeforeDate: "2015-11-11T00:00:00.000Z",
+	}
+	rule1 := LifecycleRule{
+		ID:         "rule1",
+		Prefix:     "one",
+		Status:     "Enabled",
+		Expiration: &expiration,
+	}
+
+	abortMPU = LifecycleAbortMultipartUpload{
+		Days: 30,
+	}
+	rule2 := LifecycleRule{
+		ID:                   "rule2",
+		Prefix:               "two",
+		Status:               "Enabled",
+		Expiration:           &expiration,
+		AbortMultipartUpload: &abortMPU,
+	}
+
+	transition1 := LifecycleTransition{
+		Days:         3,
+		StorageClass: StorageIA,
+	}
+	transition2 := LifecycleTransition{
+		Days:         30,
+		StorageClass: StorageArchive,
+	}
+	transitions := []LifecycleTransition{transition1, transition2}
+	rule3 := LifecycleRule{
+		ID:                   "rule3",
+		Prefix:               "three",
+		Status:               "Enabled",
+		AbortMultipartUpload: &abortMPU,
+		Transitions:          transitions,
+	}
+
+	// Set single rule
+	rules = []LifecycleRule{rule1}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, IsNil)
+
+	res, err := client.GetBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+	c.Assert(len(res.Rules), Equals, 1)
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
+	c.Assert(res.Rules[0].Expiration, NotNil)
+	c.Assert(res.Rules[0].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+
+	err = client.DeleteBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+
+	// Set two rule: rule1 and rule2
+	rules = []LifecycleRule{rule1, rule2}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, IsNil)
+
+	res, err = client.GetBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+	c.Assert(len(res.Rules), Equals, 2)
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
+	c.Assert(res.Rules[0].Expiration, NotNil)
+	c.Assert(res.Rules[0].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[1].ID, Equals, "rule2")
+	c.Assert(res.Rules[1].Expiration, NotNil)
+	c.Assert(res.Rules[1].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[1].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[1].AbortMultipartUpload.Days, Equals, 30)
+
+	err = client.DeleteBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+
+	// Set two rule: rule2 and rule3
+	rules = []LifecycleRule{rule2, rule3}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, IsNil)
+
+	res, err = client.GetBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+	c.Assert(len(res.Rules), Equals, 2)
+	c.Assert(res.Rules[0].ID, Equals, "rule2")
+	c.Assert(res.Rules[0].Expiration, NotNil)
+	c.Assert(res.Rules[0].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[0].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[0].AbortMultipartUpload.Days, Equals, 30)
+	c.Assert(res.Rules[1].ID, Equals, "rule3")
+	c.Assert(res.Rules[1].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[1].AbortMultipartUpload.Days, Equals, 30)
+	c.Assert(len(res.Rules[1].Transitions), Equals, 2)
+	c.Assert(res.Rules[1].Transitions[0].StorageClass, Equals, StorageIA)
+	c.Assert(res.Rules[1].Transitions[0].Days, Equals, 3)
+	c.Assert(res.Rules[1].Transitions[1].StorageClass, Equals, StorageArchive)
+	c.Assert(res.Rules[1].Transitions[1].Days, Equals, 30)
+
+	err = client.DeleteBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+
+	// Set two rule: rule1 and rule3
+	rules = []LifecycleRule{rule1, rule3}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, IsNil)
+
+	res, err = client.GetBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+	c.Assert(len(res.Rules), Equals, 2)
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
+	c.Assert(res.Rules[0].Expiration, NotNil)
+	c.Assert(res.Rules[0].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[1].ID, Equals, "rule3")
+	c.Assert(res.Rules[1].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[1].AbortMultipartUpload.Days, Equals, 30)
+	c.Assert(len(res.Rules[1].Transitions), Equals, 2)
+	c.Assert(res.Rules[1].Transitions[0].StorageClass, Equals, StorageIA)
+	c.Assert(res.Rules[1].Transitions[0].Days, Equals, 3)
+	c.Assert(res.Rules[1].Transitions[1].StorageClass, Equals, StorageArchive)
+	c.Assert(res.Rules[1].Transitions[1].Days, Equals, 30)
+
+	err = client.DeleteBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+
+	// Set three rules
+	rules = []LifecycleRule{rule1, rule2, rule3}
+	err = client.SetBucketLifecycle(bucketNameTest, rules)
+	c.Assert(err, IsNil)
+
+	res, err = client.GetBucketLifecycle(bucketNameTest)
+	c.Assert(err, IsNil)
+	c.Assert(len(res.Rules), Equals, 3)
+	c.Assert(res.Rules[0].ID, Equals, "rule1")
+	c.Assert(res.Rules[0].Expiration, NotNil)
+	c.Assert(res.Rules[0].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[1].ID, Equals, "rule2")
+	c.Assert(res.Rules[1].Expiration, NotNil)
+	c.Assert(res.Rules[1].Expiration.CreatedBeforeDate, Equals, "2015-11-11T00:00:00.000Z")
+	c.Assert(res.Rules[1].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[1].AbortMultipartUpload.Days, Equals, 30)
+	c.Assert(res.Rules[2].ID, Equals, "rule3")
+	c.Assert(res.Rules[2].AbortMultipartUpload, NotNil)
+	c.Assert(res.Rules[2].AbortMultipartUpload.Days, Equals, 30)
+	c.Assert(len(res.Rules[2].Transitions), Equals, 2)
+	c.Assert(res.Rules[2].Transitions[0].StorageClass, Equals, StorageIA)
+	c.Assert(res.Rules[2].Transitions[0].Days, Equals, 3)
+	c.Assert(res.Rules[2].Transitions[1].StorageClass, Equals, StorageArchive)
+	c.Assert(res.Rules[2].Transitions[1].Days, Equals, 30)
+
+	err = client.DeleteBucket(bucketNameTest)
+	c.Assert(err, IsNil)
+}
+
+// TestDeleteBucketLifecycle
+func (s *OssClientSuite) TestDeleteBucketLifecycle(c *C) {
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
+
+	var rule1 = BuildLifecycleRuleByDate("rule1", "one", true, 2015, 11, 11)
+	var rule2 = BuildLifecycleRuleByDays("rule2", "two", true, 3)
+	var rules = []LifecycleRule{rule1, rule2}
+
+	client, err := New(endpoint, accessID, accessKey)
+	c.Assert(err, IsNil)
+
+	err = client.CreateBucket(bucketNameTest)
+	c.Assert(err, IsNil)
+	//time.Sleep(timeoutInOperation)
+
 	err = client.DeleteBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
 
 	err = client.SetBucketLifecycle(bucketNameTest, rules)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	//time.Sleep(timeoutInOperation)
 
 	res, err := client.GetBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -660,12 +885,12 @@ func (s *OssClientSuite) TestDeleteBucketLifecycle(c *C) {
 	err = client.DeleteBucketLifecycle(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	//time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketLifecycle(bucketNameTest)
 	c.Assert(err, NotNil)
 
 	// Eliminate effect of cache
-	time.Sleep(time.Second * 3)
+	//time.Sleep(timeoutInOperation)
 
 	// Delete when not set
 	err = client.DeleteBucketLifecycle(bucketNameTest)
@@ -677,7 +902,7 @@ func (s *OssClientSuite) TestDeleteBucketLifecycle(c *C) {
 
 // TestSetBucketLifecycleNegative
 func (s *OssClientSuite) TestBucketLifecycleNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbln"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var rules = []LifecycleRule{}
 
 	client, err := New(endpoint, accessID, accessKey)
@@ -708,7 +933,7 @@ func (s *OssClientSuite) TestBucketLifecycleNegative(c *C) {
 
 // TestSetBucketReferer
 func (s *OssClientSuite) TestSetBucketReferer(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbr"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var referers = []string{"http://www.aliyun.com", "https://www.aliyun.com"}
 
 	client, err := New(endpoint, accessID, accessKey)
@@ -716,6 +941,7 @@ func (s *OssClientSuite) TestSetBucketReferer(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	res, err := client.GetBucketReferer(bucketNameTest)
 	c.Assert(res.AllowEmptyReferer, Equals, true)
@@ -724,7 +950,7 @@ func (s *OssClientSuite) TestSetBucketReferer(c *C) {
 	// Set referers
 	err = client.SetBucketReferer(bucketNameTest, referers, false)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketReferer(bucketNameTest)
 	c.Assert(res.AllowEmptyReferer, Equals, false)
@@ -751,7 +977,7 @@ func (s *OssClientSuite) TestSetBucketReferer(c *C) {
 
 // TestSetBucketRefererNegative
 func (s *OssClientSuite) TestBucketRefererNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbrn"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var referers = []string{""}
 
 	client, err := New(endpoint, accessID, accessKey)
@@ -770,8 +996,8 @@ func (s *OssClientSuite) TestBucketRefererNegative(c *C) {
 
 // TestSetBucketLogging
 func (s *OssClientSuite) TestSetBucketLogging(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbll"
-	var bucketNameTarget = bucketNamePrefix + "tsbllt"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
+	var bucketNameTarget = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -780,7 +1006,7 @@ func (s *OssClientSuite) TestSetBucketLogging(c *C) {
 	c.Assert(err, IsNil)
 	err = client.CreateBucket(bucketNameTarget)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// Set logging
 	err = client.SetBucketLogging(bucketNameTest, bucketNameTarget, "prefix", true)
@@ -789,7 +1015,7 @@ func (s *OssClientSuite) TestSetBucketLogging(c *C) {
 	err = client.SetBucketLogging(bucketNameTest, bucketNameTarget, "prefix", false)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err := client.GetBucketLogging(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.LoggingEnabled.TargetBucket, Equals, "")
@@ -810,8 +1036,8 @@ func (s *OssClientSuite) TestSetBucketLogging(c *C) {
 
 // TestDeleteBucketLogging
 func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbl"
-	var bucketNameTarget = bucketNamePrefix + "tdblt"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
+	var bucketNameTarget = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -820,6 +1046,7 @@ func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
 	c.Assert(err, IsNil)
 	err = client.CreateBucket(bucketNameTarget)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	// Get when not set
 	res, err := client.GetBucketLogging(bucketNameTest)
@@ -832,7 +1059,7 @@ func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
 	c.Assert(err, IsNil)
 
 	// Get
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketLogging(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.LoggingEnabled.TargetBucket, Equals, bucketNameTarget)
@@ -843,7 +1070,7 @@ func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
 	c.Assert(err, IsNil)
 
 	// Get
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketLogging(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.LoggingEnabled.TargetBucket, Equals, "")
@@ -854,7 +1081,7 @@ func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
 	c.Assert(err, IsNil)
 
 	// Get after delete
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketLogging(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.LoggingEnabled.TargetBucket, Equals, "")
@@ -868,8 +1095,8 @@ func (s *OssClientSuite) TestDeleteBucketLogging(c *C) {
 
 // TestSetBucketLoggingNegative
 func (s *OssClientSuite) TestSetBucketLoggingNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsblnn"
-	var bucketNameTarget = bucketNamePrefix + "tsblnnt"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
+	var bucketNameTarget = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -888,7 +1115,7 @@ func (s *OssClientSuite) TestSetBucketLoggingNegative(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// Target bucket not exist
 	err = client.SetBucketLogging(bucketNameTest, bucketNameTarget, "prefix", true)
@@ -907,12 +1134,13 @@ func (s *OssClientSuite) TestSetBucketLoggingNegative(c *C) {
 
 // TestSetBucketWebsite
 func (s *OssClientSuite) TestSetBucketWebsite(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbw"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var indexWebsite = "myindex.html"
 	var errorWebsite = "myerror.html"
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -934,7 +1162,7 @@ func (s *OssClientSuite) TestSetBucketWebsite(c *C) {
 	err = client.SetBucketWebsite(bucketNameTest, "your"+indexWebsite, "your"+errorWebsite)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketWebsite(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.IndexDocument.Suffix, Equals, "your"+indexWebsite)
@@ -948,7 +1176,7 @@ func (s *OssClientSuite) TestSetBucketWebsite(c *C) {
 	c.Assert(err, IsNil)
 
 	// Eliminate effect of cache
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	res, err = client.GetBucketWebsite(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -961,7 +1189,7 @@ func (s *OssClientSuite) TestSetBucketWebsite(c *C) {
 
 // TestDeleteBucketWebsite
 func (s *OssClientSuite) TestDeleteBucketWebsite(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbw"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var indexWebsite = "myindex.html"
 	var errorWebsite = "myerror.html"
 
@@ -970,6 +1198,7 @@ func (s *OssClientSuite) TestDeleteBucketWebsite(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	// Get
 	res, err := client.GetBucketWebsite(bucketNameTest)
@@ -983,18 +1212,18 @@ func (s *OssClientSuite) TestDeleteBucketWebsite(c *C) {
 	err = client.SetBucketWebsite(bucketNameTest, indexWebsite, errorWebsite)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketWebsite(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.IndexDocument.Suffix, Equals, indexWebsite)
 	c.Assert(res.ErrorDocument.Key, Equals, errorWebsite)
 
 	// Detele
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	err = client.DeleteBucketWebsite(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketWebsite(bucketNameTest)
 	c.Assert(err, NotNil)
 
@@ -1008,7 +1237,7 @@ func (s *OssClientSuite) TestDeleteBucketWebsite(c *C) {
 
 // TestSetBucketWebsiteNegative
 func (s *OssClientSuite) TestSetBucketWebsiteNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbw"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var indexWebsite = "myindex.html"
 	var errorWebsite = "myerror.html"
 
@@ -1031,7 +1260,7 @@ func (s *OssClientSuite) TestSetBucketWebsiteNegative(c *C) {
 	c.Assert(err, IsNil)
 
 	// Set
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	err = client.SetBucketWebsite(bucketNameTest, "myindex", "myerror")
 	c.Assert(err, IsNil)
 
@@ -1044,7 +1273,7 @@ func (s *OssClientSuite) TestSetBucketWebsiteNegative(c *C) {
 	err = client.DeleteBucketWebsite(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	_, err = client.GetBucketWebsite(bucketNameTest)
 	c.Assert(err, NotNil)
 
@@ -1058,7 +1287,7 @@ func (s *OssClientSuite) TestSetBucketWebsiteNegative(c *C) {
 
 // TestSetBucketWebsite
 func (s *OssClientSuite) TestSetBucketCORS(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbc"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var rule1 = CORSRule{
 		AllowedOrigin: []string{"*"},
 		AllowedMethod: []string{"PUT", "GET", "POST"},
@@ -1080,7 +1309,7 @@ func (s *OssClientSuite) TestSetBucketCORS(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// Set
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule1})
@@ -1112,7 +1341,7 @@ func (s *OssClientSuite) TestSetBucketCORS(c *C) {
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule2})
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	gbcr, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(len(gbcr.CORSRules), Equals, 1)
@@ -1126,7 +1355,7 @@ func (s *OssClientSuite) TestSetBucketCORS(c *C) {
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule1, rule2})
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	gbcr, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(len(gbcr.CORSRules), Equals, 2)
@@ -1138,7 +1367,7 @@ func (s *OssClientSuite) TestSetBucketCORS(c *C) {
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule1, rule2})
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	gbcr, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(len(gbcr.CORSRules), Equals, 2)
@@ -1152,7 +1381,7 @@ func (s *OssClientSuite) TestSetBucketCORS(c *C) {
 
 // TestDeleteBucketCORS
 func (s *OssClientSuite) TestDeleteBucketCORS(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tdbc"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var rule = CORSRule{
 		AllowedOrigin: []string{"*"},
 		AllowedMethod: []string{"PUT", "GET", "POST"},
@@ -1166,6 +1395,7 @@ func (s *OssClientSuite) TestDeleteBucketCORS(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	// Delete not set
 	err = client.DeleteBucketCORS(bucketNameTest)
@@ -1175,7 +1405,7 @@ func (s *OssClientSuite) TestDeleteBucketCORS(c *C) {
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule})
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	_, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 
@@ -1183,7 +1413,7 @@ func (s *OssClientSuite) TestDeleteBucketCORS(c *C) {
 	err = client.DeleteBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	_, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, NotNil)
 
@@ -1197,7 +1427,7 @@ func (s *OssClientSuite) TestDeleteBucketCORS(c *C) {
 
 // TestSetBucketCORSNegative
 func (s *OssClientSuite) TestSetBucketCORSNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tsbcn"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 	var rule = CORSRule{
 		AllowedOrigin: []string{"*"},
 		AllowedMethod: []string{"PUT", "GET", "POST"},
@@ -1223,7 +1453,7 @@ func (s *OssClientSuite) TestSetBucketCORSNegative(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	_, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, NotNil)
@@ -1231,7 +1461,7 @@ func (s *OssClientSuite) TestSetBucketCORSNegative(c *C) {
 	// Set
 	err = client.SetBucketCORS(bucketNameTest, []CORSRule{rule})
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	_, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -1240,7 +1470,7 @@ func (s *OssClientSuite) TestSetBucketCORSNegative(c *C) {
 	err = client.DeleteBucketCORS(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	_, err = client.GetBucketCORS(bucketNameTest)
 	c.Assert(err, NotNil)
 
@@ -1254,7 +1484,7 @@ func (s *OssClientSuite) TestSetBucketCORSNegative(c *C) {
 
 // TestGetBucketInfo
 func (s *OssClientSuite) TestGetBucketInfo(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tgbi"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -1277,7 +1507,7 @@ func (s *OssClientSuite) TestGetBucketInfo(c *C) {
 
 // TestGetBucketInfoNegative
 func (s *OssClientSuite) TestGetBucketInfoNegative(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tgbig"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey)
 	c.Assert(err, IsNil)
@@ -1293,7 +1523,7 @@ func (s *OssClientSuite) TestGetBucketInfoNegative(c *C) {
 
 // TestEndpointFormat
 func (s *OssClientSuite) TestEndpointFormat(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tef"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	// http://host
 	client, err := New(endpoint, accessID, accessKey)
@@ -1301,6 +1531,7 @@ func (s *OssClientSuite) TestEndpointFormat(c *C) {
 
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
+	time.Sleep(timeoutInOperation)
 
 	res, err := client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
@@ -1308,7 +1539,7 @@ func (s *OssClientSuite) TestEndpointFormat(c *C) {
 
 	err = client.DeleteBucket(bucketNameTest)
 	c.Assert(err, IsNil)
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 
 	// http://host:port
 	client, err = New(endpoint+":80", accessID, accessKey)
@@ -1317,7 +1548,7 @@ func (s *OssClientSuite) TestEndpointFormat(c *C) {
 	err = client.CreateBucket(bucketNameTest)
 	c.Assert(err, IsNil)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(timeoutInOperation)
 	res, err = client.GetBucketACL(bucketNameTest)
 	c.Assert(err, IsNil)
 	c.Assert(res.ACL, Equals, string(ACLPrivate))
@@ -1381,7 +1612,7 @@ func (s *OssClientSuite) _TestHTTPS(c *C) {
 
 // TestClientOption
 func (s *OssClientSuite) TestClientOption(c *C) {
-	var bucketNameTest = bucketNamePrefix + "tco"
+	var bucketNameTest = bucketNamePrefix + randLowStr(6)
 
 	client, err := New(endpoint, accessID, accessKey, UseCname(true),
 		Timeout(11, 12), SecurityToken("token"), Proxy(proxyHost))
@@ -1425,7 +1656,7 @@ func (s *OssClientSuite) TestClientOption(c *C) {
 
 // TestProxy
 func (s *OssClientSuite) TestProxy(c *C) {
-	bucketNameTest := bucketNamePrefix + "tp"
+	bucketNameTest := bucketNamePrefix + randLowStr(6)
 	objectName := "体育/奥运/首金"
 	objectValue := "大江东去，浪淘尽，千古风流人物。 故垒西边，人道是、三国周郎赤壁。"
 
@@ -1504,4 +1735,107 @@ func (s *OssClientSuite) getBucket(buckets []BucketProperties, bucket string) (b
 		}
 	}
 	return false, BucketProperties{}
+}
+
+func (s *OssClientSuite) TestHttpLogNotSignUrl(c *C) {
+	logName := "." + string(os.PathSeparator) + "test-go-sdk-httpdebug.log" + randStr(5)
+	f, err := os.OpenFile(logName, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0660)
+	c.Assert(err, IsNil)
+
+	client, err := New(endpoint, accessID, accessKey)
+	client.Config.LogLevel = Debug
+
+	client.Config.Logger = log.New(f, "", log.LstdFlags)
+
+	var testBucketName = bucketNamePrefix + randLowStr(6)
+
+	// CreateBucket
+	err = client.CreateBucket(testBucketName)
+	f.Close()
+
+	// read log file,get http info
+	contents, err := ioutil.ReadFile(logName)
+	c.Assert(err, IsNil)
+
+	httpContent := string(contents)
+	//fmt.Println(httpContent)
+
+	c.Assert(strings.Contains(httpContent, "signStr"), Equals, true)
+	c.Assert(strings.Contains(httpContent, "Method:"), Equals, true)
+
+	// delete test bucket and log
+	os.Remove(logName)
+	client.DeleteBucket(testBucketName)
+}
+
+func (s *OssClientSuite) TestHttpLogSignUrl(c *C) {
+	logName := "." + string(os.PathSeparator) + "test-go-sdk-httpdebug-signurl.log" + randStr(5)
+	f, err := os.OpenFile(logName, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0660)
+	c.Assert(err, IsNil)
+
+	client, err := New(endpoint, accessID, accessKey)
+	client.Config.LogLevel = Debug
+	client.Config.Logger = log.New(f, "", log.LstdFlags)
+
+	var testBucketName = bucketNamePrefix + randLowStr(6)
+
+	// CreateBucket
+	err = client.CreateBucket(testBucketName)
+	f.Close()
+
+	// clear log
+	f, err = os.OpenFile(logName, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0660)
+	client.Config.Logger = log.New(f, "", log.LstdFlags)
+
+	bucket, _ := client.Bucket(testBucketName)
+	objectName := objectNamePrefix + randStr(8)
+	objectValue := randStr(20)
+
+	// Sign URL for put
+	str, err := bucket.SignURL(objectName, HTTPPut, 60)
+	c.Assert(err, IsNil)
+	c.Assert(strings.Contains(str, HTTPParamExpires+"="), Equals, true)
+	c.Assert(strings.Contains(str, HTTPParamAccessKeyID+"="), Equals, true)
+	c.Assert(strings.Contains(str, HTTPParamSignature+"="), Equals, true)
+
+	// Error put object with URL
+	err = bucket.PutObjectWithURL(str, strings.NewReader(objectValue), ContentType("image/tiff"))
+	f.Close()
+
+	// read log file,get http info
+	contents, err := ioutil.ReadFile(logName)
+	c.Assert(err, IsNil)
+
+	httpContent := string(contents)
+	//fmt.Println(httpContent)
+
+	c.Assert(strings.Contains(httpContent, "signStr"), Equals, true)
+	c.Assert(strings.Contains(httpContent, "Method:"), Equals, true)
+
+	// delete test bucket and log
+	os.Remove(logName)
+	client.DeleteBucket(testBucketName)
+}
+
+func (s *OssClientSuite) TestSetLimitUploadSpeed(c *C) {
+	client, err := New(endpoint, accessID, accessKey)
+	c.Assert(err, IsNil)
+
+	err = client.LimitUploadSpeed(100)
+
+	goVersion := runtime.Version()
+	pSlice := strings.Split(strings.ToLower(goVersion), ".")
+
+	// compare with go1.7
+	if len(pSlice) >= 2 {
+		if pSlice[0] > "go1" {
+			c.Assert(err, IsNil)
+		} else if pSlice[0] == "go1" && pSlice[1] >= "7" {
+			c.Assert(err, IsNil)
+		} else {
+			c.Assert(err, NotNil)
+		}
+	} else {
+		c.Assert(err, NotNil)
+	}
 }

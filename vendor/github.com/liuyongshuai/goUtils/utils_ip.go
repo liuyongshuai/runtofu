@@ -4,10 +4,12 @@
 package goUtils
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 //提取本机的IP地址
@@ -24,6 +26,37 @@ func LocalIP() (ips []string) {
 		}
 	}
 	return
+}
+
+//获取当前的外网IP
+func GetRemoteIP() string {
+	url := "http://httpbin.org/ip"
+	httpClient := NewHttpClient(url, context.Background())
+	rsp, err := httpClient.Get()
+	if err != nil {
+		return ""
+	}
+	str := rsp.GetBodyString()
+	reg, _ := regexp.Compile(`"origin":\s*"(.+)"`)
+	regRet := reg.FindAllStringSubmatch(str, -1)
+	if len(regRet) <= 0 {
+		return ""
+	}
+	tmpRet := regRet[0]
+	if len(tmpRet) <= 1 {
+		return ""
+	}
+	tmpMap := make(map[string]struct{})
+	tmp := strings.Split(tmpRet[1], ",")
+	for _, ip := range tmp {
+		ip = strings.TrimSpace(ip)
+		tmpMap[ip] = struct{}{}
+	}
+	var tmpSlice []string
+	for ip := range tmpMap {
+		tmpSlice = append(tmpSlice, ip)
+	}
+	return strings.Join(tmpSlice, ",")
 }
 
 //判断是否为内网

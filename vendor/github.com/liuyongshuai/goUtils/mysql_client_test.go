@@ -10,10 +10,10 @@ func TestDBase_Conn(t *testing.T) {
 	testStart()
 
 	myconf := MySQLConf{
-		Host:    "10.96.114.84",
+		Host:    "127.0.0.1",
 		User:    "phpmyadmin",
 		Passwd:  "123456",
-		DbName:  "db_wendao",
+		DbName:  "db_test",
 		Charset: "utf8",
 		Timeout: 5,
 		Port:    3306,
@@ -34,10 +34,10 @@ func TestDBase_InsertBatchData(t *testing.T) {
 	testStart()
 
 	myconf := MySQLConf{
-		Host:       "10.96.114.84",
+		Host:       "127.0.0.1",
 		User:       "phpmyadmin",
 		Passwd:     "123456",
-		DbName:     "db_wendao",
+		DbName:     "db_test",
 		Charset:    "utf8",
 		Timeout:    5,
 		Port:       3306,
@@ -66,10 +66,10 @@ func TestGetMySQLTableStruct(t *testing.T) {
 	testStart()
 
 	myconf := MySQLConf{
-		Host:       "10.96.114.84",
+		Host:       "127.0.0.1",
 		User:       "phpmyadmin",
 		Passwd:     "123456",
-		DbName:     "db_runtofu",
+		DbName:     "db_test",
 		Charset:    "utf8",
 		Timeout:    5,
 		Port:       3306,
@@ -91,10 +91,10 @@ func TestGetAllMySQLTables(t *testing.T) {
 	testStart()
 
 	myconf := MySQLConf{
-		Host:       "10.96.114.84",
+		Host:       "127.0.0.1",
 		User:       "phpmyadmin",
 		Passwd:     "123456",
-		DbName:     "db_runtofu",
+		DbName:     "db_test",
 		Charset:    "utf8",
 		Timeout:    5,
 		Port:       3306,
@@ -115,10 +115,10 @@ func TestGetMySQLAllTablesStruct(t *testing.T) {
 	testStart()
 
 	myconf := MySQLConf{
-		Host:       "10.96.114.84",
+		Host:       "127.0.0.1",
 		User:       "phpmyadmin",
 		Passwd:     "123456",
-		DbName:     "db_runtofu",
+		DbName:     "db_test",
 		Charset:    "utf8",
 		Timeout:    5,
 		Port:       3306,

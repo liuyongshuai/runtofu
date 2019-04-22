@@ -182,7 +182,8 @@ func GenPolygons(baseRect GeoRectangle, polygonNum, pointMinNum, pointMaxNum int
 	if pointMinNum < 3 {
 		return
 	}
-	LogInfo("start GenPolygons：baseRect[%d x %d] polygonNum[%d] pointMinNum[%d] pointMaxNum[%d]\n", int(width), int(height), polygonNum, pointMinNum, pointMaxNum)
+	LogInfof("start GenPolygons：baseRect[%d x %d] polygonNum[%d] pointMinNum[%d] pointMaxNum[%d]",
+		int(width), int(height), polygonNum, pointMinNum, pointMaxNum)
 	diffNum := pointMaxNum - pointMinNum + 1
 	var randFloat float64
 	diffLat := baseRect.MaxLat - baseRect.MinLat

@@ -5,7 +5,9 @@ package oss
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -258,8 +260,12 @@ func (client Client) GetBucketACL(bucketName string) (GetBucketACLResult, error)
 // error    it's nil if no error, otherwise it's an error object.
 //
 func (client Client) SetBucketLifecycle(bucketName string, rules []LifecycleRule) error {
-	lxml := lifecycleXML{Rules: convLifecycleRule(rules)}
-	bs, err := xml.Marshal(lxml)
+	err := verifyLifecycleRules(rules)
+	if err != nil {
+		return err
+	}
+	lifecycleCfg := LifecycleConfiguration{Rules: rules}
+	bs, err := xml.Marshal(lifecycleCfg)
 	if err != nil {
 		return err
 	}
@@ -648,6 +654,16 @@ func (client Client) GetBucketInfo(bucketName string) (GetBucketInfoResult, erro
 	return out, err
 }
 
+// LimitUploadSpeed set upload bandwidth limit speed,default is 0,unlimited
+// upSpeed KB/s, 0 is unlimited,default is 0
+// error it's nil if success, otherwise failure
+func (client Client) LimitUploadSpeed(upSpeed int) error {
+	if client.Config == nil {
+		return fmt.Errorf("client config is nil")
+	}
+	return client.Config.LimitUploadSpeed(upSpeed)
+}
+
 // UseCname sets the flag of using CName. By default it's false.
 //
 // isUseCname    true: the endpoint has the CName, false: the endpoint does not have cname. Default is false.
@@ -764,6 +780,24 @@ func AuthProxy(proxyHost, proxyUser, proxyPassword string) ClientOption {
 func HTTPClient(HTTPClient *http.Client) ClientOption {
 	return func(client *Client) {
 		client.HTTPClient = HTTPClient
+	}
+}
+
+//
+// SetLogLevel sets the oss sdk log level
+//
+func SetLogLevel(LogLevel int) ClientOption {
+	return func(client *Client) {
+		client.Config.LogLevel = LogLevel
+	}
+}
+
+//
+// SetLogger sets the oss sdk logger
+//
+func SetLogger(Logger *log.Logger) ClientOption {
+	return func(client *Client) {
+		client.Config.Logger = Logger
 	}
 }
 

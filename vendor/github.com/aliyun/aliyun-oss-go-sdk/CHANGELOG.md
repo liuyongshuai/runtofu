@@ -1,4 +1,35 @@
 # ChangeLog - Aliyun OSS SDK for Go
+## 版本号：v1.9.6 日期：2019-04-15
+### 变更内容
+- 变更：扩展lifecycle功能，提供设置AbortMutipartUpload和Transitions两种规则的生命周期管理的处理
+- 修复：测试用例BucketName使用固定前缀+随机的字符串
+- 修复：测试用例ObjectName使用固定前缀+随机字符串
+- 修复：测试用例有关bucket相关的异步操作，统一定义sleep时间
+- 修复：测试集结束后，列出bucket内的所有对象并删除所有测试的对象
+- 修复：测试集结束后，列出bucket内的所有未上传完成的分片并删除所有测试过程中产生的为上传完成的分片
+- 修复：支持上传webp类型的对象时从对象的后缀名字自动解析对应的content-type并设置content-type
+- 变更：增加在put/copy/append等接口时时设置对象的存储类型的sample
+- 修复：sample示例中的配置项的值改为直接从环境变量读取
+
+## 版本号：1.9.5 日期：2019-03-08
+### 变更内容
+- 变更：增加了限速上传功能
+
+## 版本号：1.9.4 日期：2019-01-25
+### 变更内容
+- 修复：在开启日志后，如果接口返回错误readResponseBody函数被调用两次
+- 变更：增加livechannel功能各个api接口
+
+## 版本号：1.9.3 日期：2019-01-10
+### 变更内容
+- 修复：分片上传时传入partSize值不对是的提示信息不准确的问题
+- 修复：仅仅在使用userAgent的时候初始化它的值
+- 变更：添加ContentLanguage选项
+- 变更：支持设置最大的空闲连接个数
+- 变更：当配置的endpoint不对时，输出的错误信息将会打印出正确的endpoint
+- 变更：支持ServerSideEncryptionKeyID选项，允许用户传入kms-id
+- 变更：添加日志模块，支持设置日志级别
+
 ## 版本号：1.9.2 日期：2018-11-16
 ### 变更内容
 - 变更：添加支持设置request Payer的option

@@ -16,6 +16,10 @@ import (
 	"testing"
 )
 
+func TestGetRemoteIP(t *testing.T) {
+	fmt.Println(GetRemoteIP())
+}
+
 func TestToCBD(t *testing.T) {
 	testStart()
 	str := "ａｂｃａ@￥@#%#ｓｄ🎈🎉ｆ我E２３４３４５んエォサ６３＃＄％＾＄＆％＾（＆我"

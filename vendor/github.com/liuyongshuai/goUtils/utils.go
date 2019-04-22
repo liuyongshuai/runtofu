@@ -20,7 +20,8 @@ var (
 	LocalHostIpTraceId  = ""
 	SequenceIDGenerator *SnowFlakeIdGenerator
 	preTraceID          = ""
-	colorFns            = []ColorFunc{Green, LightGreen, Cyan, LightCyan, Red, LightRed, Yellow, Black, DarkGray, LightGray, White, Blue, LightBlue, Purple, LightPurple, Brown}
+	ScreenWidth         int
+	ScreenHeight        int
 )
 
 func init() {
@@ -47,6 +48,11 @@ func init() {
 	if err != nil {
 		errMsg := fmt.Sprintf("Init IDGenerator failed, err=%v", err)
 		BitchWarning(errMsg)
+	}
+	ScreenWidth, ScreenHeight, err = GetTerminalSize()
+	if err != nil {
+		ScreenWidth = 200
+		ScreenHeight = 200
 	}
 }
 
