@@ -43,8 +43,8 @@ prepare:
 	for i in $(OUTPUT_DIRS); do mkdir -p "$(OUTPUT)/$$i"; done
 	cp -vr "$(CONF)" "$(OUTPUT)"
 	cp -vr "$(TEMPLATE_DIR)" "$(OUTPUT)"
-	cp -v "$(CURDIR)/control.sh" "$(OUTPUT)/bin/"
-	sed -i'' -e 's/%(APP)/$(APP)/' "$(OUTPUT)/bin/control.sh"
+	cp -v "$(CURDIR)/control.sh" "$(OUTPUT)"
+	sed -i'' -e 's/%(APP)/$(APP)/' "$(OUTPUT)/control.sh"
 run:
 	cd "$(OUTPUT)" && bin/$(APP)
 
