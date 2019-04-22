@@ -1,4 +1,4 @@
-package Runtofu
+package goweb
 
 import (
 	"fmt"

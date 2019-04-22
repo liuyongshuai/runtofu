@@ -21,5 +21,3 @@ import:
   - context
 - package: github.com/liuyongshuai/goUtils
   version: master
-- package: github.com/liuyongshuai/runtofu/goweb
-  version: master
