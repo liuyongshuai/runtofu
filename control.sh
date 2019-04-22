@@ -1,70 +1,54 @@
-#! /bin/bash
+#!/bin/bash
 
-set -e
+workspace=$(cd $(dirname $0) && pwd -P)
 
-CONF_NAME="service.conf"
-SERVICE_NAME="%(APP)"
-BINARY_NAME="%(APP)"
-LOG_DIR="/home/xiaoju/soda/log/search-broker_service"
-APOLLO_DIR="/home/xiaoju/ep/as/store"
+action="$1"
+conf="conf/service.conf"
 
-CUR_DIR=$(dirname "$0")
-MY_PATH=$(cd "$CUR_DIR" && pwd -P)
-
-function setLogPath() {
-    mkdir -p "$LOG_DIR"
-}
-
-function setApolloPath() {
-    mkdir -p "${APOLLO_DIR}"
-    mkdir -p "${APOLLO_DIR}/toggles"
-    mkdir -p "${APOLLO_DIR}/conf"
-}
-
-function setConfigFile() {
-    echo "pwd: $MY_PATH"
-
-	CLUSTER_NAME=$(cat $MY_PATH/.deploy/service.cluster.txt)
-
-	if [ -f "$MY_PATH/conf/$CONF_NAME.$CLUSTER_NAME" ]; then
-        rm -f "$MY_PATH/conf/$CONF_NAME"
-       	ln -s "$MY_PATH/conf/$CONF_NAME.$CLUSTER_NAME" "$MY_PATH/conf/$CONF_NAME"
-	else
-		echo "Config file is not found for cluster: $CLUSTER_NAME."
-		exit 1
-	fi
+function usage() {
+        echo "manage runtofu process"
+        echo
+        echo "usage: $0 start|stop|restart|status"
+        echo
+        echo "    conf   optional, default ./conf/service.conf"
+        echo
 }
 
 function start() {
-	setConfigFile
-    setLogPath
-    setApolloPath
-	exec "$MY_PATH/bin/$BINARY_NAME" -config="$MY_PATH/conf/$CONF_NAME"
+		nohup bin/runtofu -config=./conf/service.conf > ./abc.txt 2>&1 &
+		status
 }
 
 function stop() {
-    supervisorctl stop $SERVICE_NAME
+	pkill -f 'bin/runtofu -config=./conf/service.conf'
+	kill -9 $(ps aux|grep runtofu|grep -v grep|awk '{print $2}')
+    sleep 0.5
 }
 
-function restart() {
-    stop
-    sleep 1
-    start
+function status() {
+	pid=$(pgrep -f 'bin/runtofu -config=./conf/service.conf')
+        if [ "x$pid" == "x" ]; then
+            echo "runtofu is not running"
+        else
+            echo "runtofu is running with pid [$pid]"
+        fi
 }
 
-function usage() {
-    echo "Usage: $0 {start|stop|restart}"
-    exit 1
-}
-
-if [ $# != 1 ]; then
-    usage
-fi
-
-case "$1" in
-    start|stop|restart)
-        $1
-        ;;
+case $action in
+    start)
+		start
+		;;
+    stop)
+		stop
+		;;
+    restart)
+		stop
+		start
+		;;
+    status)
+		status
+		;;
     *)
-        usage
+		usage
+		;;
 esac

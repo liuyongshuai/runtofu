@@ -11,7 +11,6 @@ import (
 	"github.com/liuyongshuai/runtofu/utils"
 	"github.com/liuyongshuai/runtofu/goweb"
 	"github.com/liuyongshuai/runtofu/goweb/context"
-	"github.com/liuyongshuai/wego"
 	"os"
 )
 
@@ -41,7 +40,7 @@ func main() {
 	ch := make(chan interface{})
 
 	//admin管理系统的一些设置项
-	adminApp := goweb.NewWeGoAPP(). //新建一个app
+	adminApp := goweb.NewRuntofuAPP(). //新建一个app
 					SetPort(conf.Http.Port).                                     //监听端口
 					SetTplDir(conf.Http.TplDir).                                 //模板根目录
 					SetTplExt(conf.Http.TplExt).                                 //模板扩展名称
@@ -50,7 +49,7 @@ func main() {
 					AddTplFuncMap(utils.TplFuncs).                               //自定义的模板函数
 					SetErrController(&controller.ErrorController{}).             //错误页面
 					AddRouters(routers.AdminRouterList...).                      //路由信息
-					SetRecoverFunc(func(ctx *context.WeGoContext) {              //panic时的处理函数
+					SetRecoverFunc(func(ctx *context.RuntofuContext) {              //panic时的处理函数
 			if err := recover(); err != nil {
 				errmsg := "url=" + ctx.Input.URI()
 				fmt.Println(err, errmsg)
