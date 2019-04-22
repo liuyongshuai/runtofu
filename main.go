@@ -63,9 +63,9 @@ func main() {
 
 	//admin管理系统的一些设置项
 	adminApp := goweb.NewRuntofuAPP(). //新建一个app
-						SetPort(conf.Http.Port).                                     //监听端口
-						SetTplDir(conf.Http.TplDir).                                 //模板根目录
-						SetTplExt(conf.Http.TplExt).                                 //模板扩展名称
+						SetPort(conf.Admin.Port).                                    //监听端口
+						SetTplDir(conf.Admin.TplDir).                                //模板根目录
+						SetTplExt(conf.Admin.TplExt).                                //模板扩展名称
 						AddTplCommonData("SITE_NAME", conf.Http.SiteName).           //站点的名称
 						AddTplCommonData("STATIC_PREFIX", conf.Common.StaticPrefix). //静态资源前缀
 						AddTplFuncMap(utils.TplFuncs).                               //自定义的模板函数

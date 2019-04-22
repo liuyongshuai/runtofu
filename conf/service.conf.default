@@ -1,6 +1,11 @@
 [http]
+port = "8080"
+tpldir = "./tpl/blog"
+tplext = "tpl"
+
+[admin]
 port = "8088"
-tpldir = "./tpl"
+tpldir = "./tpl/admin"
 tplext = "tpl"
 
 [common]

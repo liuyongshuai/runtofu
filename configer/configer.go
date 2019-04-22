@@ -20,6 +20,13 @@ type HTTPConf struct {
 	SiteName string `toml:"sitename"` //站点的名称
 }
 
+//管理后台服务相关
+type AdminConf struct {
+	Port   string `toml:"port"`   //http服务监听地址
+	TplDir string `toml:"tpldir"` //模板的路径
+	TplExt string `toml:"tplext"` //模板扩展名
+}
+
 //通用的配置项
 type CommonConf struct {
 	StaticPrefix string `toml:"static_prefix"` //静态资源的地址前缀
@@ -82,6 +89,7 @@ type RuntofuConfig struct {
 	Redis  RedisConf  `toml:"redis"`  //mysql配置
 	Common CommonConf `toml:"common"` //通用的配置项
 	Http   HTTPConf   `toml:"http"`   //http服务
+	Admin  AdminConf  `toml:"admin"`
 	Aliyun AliyunConf `toml:"aliyun"` //阿里云相关服务的配置
 	Oauth  OauthConf  `toml:"oauth"`
 }
