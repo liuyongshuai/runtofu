@@ -77,7 +77,7 @@ type RedisConf struct {
 	Db     int    `toml:"db"`     //哪个库
 }
 
-type WeGoAdminConfig struct {
+type RuntofuConfig struct {
 	MySQL  MySQLConf  `toml:"mysql"`  //mysql配置
 	Redis  RedisConf  `toml:"redis"`  //mysql配置
 	Common CommonConf `toml:"common"` //通用的配置项
@@ -86,17 +86,17 @@ type WeGoAdminConfig struct {
 	Oauth  OauthConf  `toml:"oauth"`
 }
 
-var gConfig WeGoAdminConfig
+var gConfig RuntofuConfig
 
 //提取配置对象
-func GetConfiger() *WeGoAdminConfig {
+func GetConfiger() *RuntofuConfig {
 	return &gConfig
 }
 
 //初始化配置信息
-func (p *WeGoAdminConfig) Init(configPath string) error {
+func (p *RuntofuConfig) Init(configPath string) error {
 	fmt.Println("start init config.....")
-	gConfig = WeGoAdminConfig{}
+	gConfig = RuntofuConfig{}
 	if _, err := toml.DecodeFile(configPath, &gConfig); err != nil {
 		fmt.Printf("fail to read config.||err=%v||config=%v", err, configPath)
 		return errors.New("fail to init config")

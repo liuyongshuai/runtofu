@@ -15,10 +15,10 @@ import (
 //输出结构体定义
 type RuntofuOuput struct {
 	Context *RuntofuContext //本次请求相关的上下文
-	Status  int          //手动设置的响应的http code码
-	Body    []byte       //暂存要发送的响应body的信息
-	Cookies []string     //暂存要发送响应的cookie信息
-	Started bool         //是否开始发送请求了
+	Status  int             //手动设置的响应的http code码
+	Body    []byte          //暂存要发送的响应body的信息
+	Cookies []string        //暂存要发送响应的cookie信息
+	Started bool            //是否开始发送请求了
 }
 
 //获取一个输出实例

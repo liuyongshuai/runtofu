@@ -5,8 +5,8 @@ import "reflect"
 //路由类型
 const (
 	InvalidRouterType  = iota
-	RouterTypePathInfo  //全路径匹配
-	RouterTypeRegexp    //正则匹配
+	RouterTypePathInfo //全路径匹配
+	RouterTypeRegexp   //正则匹配
 )
 
 //单个路由结构体

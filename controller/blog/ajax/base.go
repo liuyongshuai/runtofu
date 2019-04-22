@@ -7,7 +7,7 @@ package ajax
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goutils/elem"
+	"github.com/liuyongshuai/goUtils"
 	"github.com/liuyongshuai/runtofu/controller/blog"
 	"net/http"
 )
@@ -44,10 +44,10 @@ func (bc *RunToFuAjaxBaseController) Notice(d interface{}, ret ...interface{}) {
 	var errno int64 = 0
 	var errmsg = "ok"
 	if len(ret) > 0 {
-		errno, _ = elem.MakeItemElem(ret[0]).ToInt64()
+		errno, _ = goUtils.MakeElemType(ret[0]).ToInt64()
 	}
 	if len(ret) > 1 {
-		errmsg = elem.MakeItemElem(ret[1]).ToString()
+		errmsg = goUtils.MakeElemType(ret[1]).ToString()
 	}
 	bc.RenderJson(AjaxResponseData{
 		Result: AjaxResponseResult{

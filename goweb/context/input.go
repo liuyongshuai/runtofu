@@ -13,7 +13,7 @@ import (
 
 //请求输入的相关信息结构体
 type RuntofuInput struct {
-	Context     *RuntofuContext      //上下文的指针
+	Context     *RuntofuContext   //上下文的指针
 	Args        map[string]string //所有的参数
 	RequestBody []byte
 	Controller  reflect.Type //相关的控制层

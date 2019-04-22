@@ -60,7 +60,7 @@ var MSnowFlake, _ = goUtils.NewIDGenerator().
 	SetWorkerId(1).
 	Init()
 
-func Init(conf *configer.WeGoAdminConfig) error {
+func Init(conf *configer.RuntofuConfig) error {
 	if len(conf.Common.CookieKey) > 0 {
 		CookieKey = conf.Common.CookieKey
 	}

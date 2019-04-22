@@ -8,7 +8,7 @@ package utils
 import (
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/configer"
 	"html/template"
 	"regexp"
 	"strings"
@@ -16,10 +16,10 @@ import (
 )
 
 var TplFuncs template.FuncMap
-var conf *config.WeGoAdminConfig
+var conf *configer.RuntofuConfig
 
 func init() {
-	conf = config.GetConfiger()
+	conf = configer.GetConfiger()
 	TplFuncs = make(template.FuncMap)
 	TplFuncs["static_css"] = StaticCSS
 	TplFuncs["static_js"] = StaticJS

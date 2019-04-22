@@ -31,8 +31,8 @@ func NewRuntofuContext() *RuntofuContext {
 
 //上下文的定义
 type RuntofuContext struct {
-	Input          *RuntofuInput          //收到的请求里相关信息，包括参数、方法、上传文件等
-	Output         *RuntofuOuput          //要发送给端的暂存用的数据
+	Input          *RuntofuInput       //收到的请求里相关信息，包括参数、方法、上传文件等
+	Output         *RuntofuOuput       //要发送给端的暂存用的数据
 	Request        *http.Request       //请求原始对象指针
 	ResponseWriter http.ResponseWriter //响应原始对象
 	UniqueKey      string              //本次请求的唯一标识符
