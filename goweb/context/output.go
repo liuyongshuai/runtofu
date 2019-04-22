@@ -13,8 +13,8 @@ import (
 )
 
 //输出结构体定义
-type WeGoOuput struct {
-	Context *WeGoContext //本次请求相关的上下文
+type RuntofuOuput struct {
+	Context *RuntofuContext //本次请求相关的上下文
 	Status  int          //手动设置的响应的http code码
 	Body    []byte       //暂存要发送的响应body的信息
 	Cookies []string     //暂存要发送响应的cookie信息
@@ -22,14 +22,14 @@ type WeGoOuput struct {
 }
 
 //获取一个输出实例
-func NewOutput() *WeGoOuput {
-	output := &WeGoOuput{}
+func NewOutput() *RuntofuOuput {
+	output := &RuntofuOuput{}
 	return output
 }
 
 //重置输出信息
-func (output *WeGoOuput) Reset(WeGoCtx *WeGoContext) {
-	output.Context = WeGoCtx
+func (output *RuntofuOuput) Reset(RuntofuCtx *RuntofuContext) {
+	output.Context = RuntofuCtx
 	output.Status = 0
 	output.Body = []byte{}
 	output.Cookies = []string{}
@@ -37,20 +37,20 @@ func (output *WeGoOuput) Reset(WeGoCtx *WeGoContext) {
 
 	//默认添加的几个公共头信息
 	output.AddHeader("Referrer-Policy", "origin-when-cross-origin") //默认的referrer策略
-	output.AddHeader("X-Powered-By", "WeGoGo")
-	output.AddHeader("Server", "WeGoGo")
-	output.AddHeader("Github", "https://github.com/liuyongshuai/WeGogo")
+	output.AddHeader("X-Powered-By", "RuntofuGo")
+	output.AddHeader("Server", "RuntofuGo")
+	output.AddHeader("Github", "https://github.com/liuyongshuai/Runtofugo")
 	output.AddHeader("Cache-Control", "no-cache, must-revalidate")
 	output.AddHeader("Expires", "0")
 }
 
 //设置要输出的header信息
-func (output *WeGoOuput) AddHeader(key, val string) {
+func (output *RuntofuOuput) AddHeader(key, val string) {
 	output.Context.ResponseWriter.Header().Set(key, val)
 }
 
 //设置输出的body
-func (output *WeGoOuput) SetBody(body []byte) {
+func (output *RuntofuOuput) SetBody(body []byte) {
 	output.Body = body
 }
 
@@ -62,7 +62,7 @@ func (output *WeGoOuput) SetBody(body []byte) {
 	secure：只对HTTPS请求可见，对HTTP请求不可见
 	httponly：对浏览器端的javascript中的document对象不可见
 */
-func (output *WeGoOuput) AddCookie(name string, value string, others ...interface{}) {
+func (output *RuntofuOuput) AddCookie(name string, value string, others ...interface{}) {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "%s=%s", sanitizeName(name), sanitizeValue(value))
 	if len(others) > 0 {
@@ -141,7 +141,7 @@ func sanitizeValue(v string) string {
 }
 
 //返回json数据
-func (output *WeGoOuput) RenderJson(data interface{}) error {
+func (output *RuntofuOuput) RenderJson(data interface{}) error {
 	output.AddHeader("Content-Type", "application/json; charset=utf-8")
 	var err error
 	content, err := json.Marshal(data)
@@ -155,7 +155,7 @@ func (output *WeGoOuput) RenderJson(data interface{}) error {
 }
 
 //响应jsonp数据，要求传个callback参数
-func (output *WeGoOuput) RenderJsonp(data interface{}, callback ...string) error {
+func (output *RuntofuOuput) RenderJsonp(data interface{}, callback ...string) error {
 	var content []byte
 	var err error
 	content, err = json.Marshal(data)
@@ -185,12 +185,12 @@ func (output *WeGoOuput) RenderJsonp(data interface{}, callback ...string) error
 }
 
 //设置响应的状态值
-func (output *WeGoOuput) SetStatus(status int) {
+func (output *RuntofuOuput) SetStatus(status int) {
 	output.Status = status
 }
 
 //输出所有的内容，包括header、body、cookie等
-func (output *WeGoOuput) Send() {
+func (output *RuntofuOuput) Send() {
 	//输出cookie信息
 	if len(output.Cookies) > 0 {
 		for _, c := range output.Cookies {

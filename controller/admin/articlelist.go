@@ -3,15 +3,15 @@
  * @package     admin
  * @date        2018-02-09 11:14
  */
-package controller
+package admin
 
 import (
+	"github.com/liuyongshuai/runtofu/funcs"
 	"github.com/liuyongshuai/runtofu/model"
-	"github.com/liuyongshuai/runtofu/utils"
 )
 
 type ArticleListController struct {
-	BaseController
+	AdminBaseController
 }
 
 //校验是否登录
@@ -23,8 +23,8 @@ func (bc *ArticleListController) Run() {
 	is_rec, _ := bc.GetParam("is_rec", -1).ToInt()
 	sctime := bc.GetParam("sctime", "").ToString()
 	ectime := bc.GetParam("ectime", "").ToString()
-	st := utils.StrToTime(sctime)
-	et := utils.StrToTime(ectime)
+	st := funcs.StrToTime(sctime)
+	et := funcs.StrToTime(ectime)
 
 	cond := make(map[string]interface{})
 	if is_publish >= 0 {

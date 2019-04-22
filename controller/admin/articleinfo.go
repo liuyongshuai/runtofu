@@ -3,14 +3,14 @@
  * @package     admin
  * @date        2018-02-09 16:24
  */
-package controller
+package admin
 
 import (
 	"net/http"
 )
 
 type ArticleInfoController struct {
-	BaseController
+	AdminBaseController
 }
 
 //校验是否登录

@@ -3,14 +3,14 @@
  * @package     admin
  * @date        2018-02-09 11:14
  */
-package controller
+package admin
 
 import (
 	"github.com/liuyongshuai/runtofu/model"
 )
 
 type TagListController struct {
-	BaseController
+	AdminBaseController
 }
 
 //校验是否登录

@@ -7,13 +7,13 @@ package system
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/runtofu/controller"
+	"github.com/liuyongshuai/runtofu/controller/admin"
 	"github.com/liuyongshuai/runtofu/model"
 )
 
 //system层的基类
 type AdminSystemBaseController struct {
-	controller.BaseController
+	admin.AdminBaseController
 }
 
 //校验是否为超级用户

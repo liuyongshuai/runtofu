@@ -3,7 +3,7 @@
  * @package     admin
  * @date        2018-02-11 20:35
  */
-package controller
+package admin
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 type LoginController struct {
-	BaseController
+	AdminBaseController
 }
 
 func (bc *LoginController) Prepare() error {

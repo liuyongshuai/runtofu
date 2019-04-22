@@ -1,12 +1,12 @@
-package controller
+package admin
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/runtofu/controller"
 	"github.com/liuyongshuai/runtofu/model"
 	"github.com/liuyongshuai/runtofu/utils"
-	"github.com/liuyongshuai/runtofu/goweb/controller"
 	"html/template"
 	"strings"
 	"time"
@@ -14,12 +14,12 @@ import (
 
 var gPageSize int64 = 30
 
-type BaseController struct {
-	controller.WeGoController
+type AdminBaseController struct {
+	controller.ToFuController
 	UserInfo model.AdminUserInfo //登录后的用户的信息
 }
 
-func (c *BaseController) Prepare() error {
+func (c *AdminBaseController) Prepare() error {
 	c.UserInfo = c.CheckLogin(true, func() {
 		c.Ctx.Redirect("/login")
 	})
@@ -28,7 +28,7 @@ func (c *BaseController) Prepare() error {
 }
 
 //校验是否登录
-func (c *BaseController) CheckLogin(mustLogin bool, errFn func()) (ret model.AdminUserInfo) {
+func (c *AdminBaseController) CheckLogin(mustLogin bool, errFn func()) (ret model.AdminUserInfo) {
 	c.TplData["userInfo"] = ret
 
 	//提取cookie里的相关值，它是有一定长度的
@@ -120,7 +120,7 @@ func (c *BaseController) CheckLogin(mustLogin bool, errFn func()) (ret model.Adm
 }
 
 //退出登录信息
-func (c *BaseController) Logout(uid int64) {
+func (c *AdminBaseController) Logout(uid int64) {
 	//先清理cookie信息
 	c.Ctx.Output.AddCookie(model.CookieKey, "", -1, "/")
 	if uid <= 0 {
@@ -133,7 +133,7 @@ func (c *BaseController) Logout(uid int64) {
 }
 
 //分页
-func (c *BaseController) getPagination(totalNum int64) template.HTML {
+func (c *AdminBaseController) getPagination(totalNum int64) template.HTML {
 	reqUrl := c.Ctx.Request.URL
 	rawQuery := reqUrl.RawQuery
 	curPath := reqUrl.Path
@@ -141,7 +141,7 @@ func (c *BaseController) getPagination(totalNum int64) template.HTML {
 }
 
 //设置左侧的菜单栏
-func (c *BaseController) SetLeftMenu() {
+func (c *AdminBaseController) SetLeftMenu() {
 	if _, ok := c.TplData["leftMenuList"]; ok {
 		return
 	}

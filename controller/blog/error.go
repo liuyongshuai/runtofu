@@ -3,14 +3,14 @@
  * @package     controller
  * @date        2018-02-03 11:13
  */
-package controller
+package blog
 
 import (
 	"net/http"
 )
 
 type ErrorController struct {
-	BaseController
+	RunToFuBaseController
 }
 
 //校验是否登录

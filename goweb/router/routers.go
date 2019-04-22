@@ -15,9 +15,9 @@ import (
 )
 
 //返回一个路由列表信息
-func NewWeGoRouterList() *WeGoRouterList {
-	ret := &WeGoRouterList{
-		RCache: make(map[string]WeGoRouterCache),
+func NewRuntofuRouterList() *RuntofuRouterList {
+	ret := &RuntofuRouterList{
+		RCache: make(map[string]RuntofuRouterCache),
 		MFunc:  make(map[int]RouterMatchFunc),
 		Mutex:  new(sync.RWMutex),
 	}
@@ -27,21 +27,21 @@ func NewWeGoRouterList() *WeGoRouterList {
 }
 
 //一堆路由列表，带缓存
-type WeGoRouterList struct {
-	RList  []*WeGoRouterItem          //所有的路由列表信息
-	RCache map[string]WeGoRouterCache //已经匹配过的缓存起来
-	MFunc  map[int]RouterMatchFunc    //各种类型的处理函数
+type RuntofuRouterList struct {
+	RList  []*RuntofuRouterItem          //所有的路由列表信息
+	RCache map[string]RuntofuRouterCache //已经匹配过的缓存起来
+	MFunc  map[int]RouterMatchFunc       //各种类型的处理函数
 	Mutex  *sync.RWMutex
 }
 
 //添加处理函数
-func (rs *WeGoRouterList) AddMatchFunc(t int, fn RouterMatchFunc) *WeGoRouterList {
+func (rs *RuntofuRouterList) AddMatchFunc(t int, fn RouterMatchFunc) *RuntofuRouterList {
 	rs.MFunc[t] = fn
 	return rs
 }
 
 //添加路由信息
-func (rs *WeGoRouterList) AddRouter(r *WeGoRouterItem) *WeGoRouterList {
+func (rs *RuntofuRouterList) AddRouter(r *RuntofuRouterItem) *RuntofuRouterList {
 	if r == nil {
 		return rs
 	}
@@ -52,7 +52,7 @@ func (rs *WeGoRouterList) AddRouter(r *WeGoRouterItem) *WeGoRouterList {
 }
 
 //批量添加路由信息
-func (rs *WeGoRouterList) AddRouters(r ...*WeGoRouterItem) *WeGoRouterList {
+func (rs *RuntofuRouterList) AddRouters(r ...*RuntofuRouterItem) *RuntofuRouterList {
 	if len(r) <= 0 {
 		return rs
 	}
@@ -67,7 +67,7 @@ func (rs *WeGoRouterList) AddRouters(r ...*WeGoRouterItem) *WeGoRouterList {
 }
 
 //开始匹配路由
-func (rs *WeGoRouterList) Match(ctx *context.WeGoContext, req *http.Request) *WeGoRouterItem {
+func (rs *RuntofuRouterList) Match(ctx *context.RuntofuContext, req *http.Request) *RuntofuRouterItem {
 	if len(rs.RList) == 0 {
 		return nil
 	}
@@ -99,12 +99,12 @@ func (rs *WeGoRouterList) Match(ctx *context.WeGoContext, req *http.Request) *We
 	//开始匹配路由信息
 	rs.Mutex.Lock()
 	defer rs.Mutex.Unlock()
-	var router *WeGoRouterItem = nil
+	var router *RuntofuRouterItem = nil
 	for _, rinfo := range rs.RList {
 		if fn, ok := rs.MFunc[rinfo.Type]; ok {
 			router = fn(ctx, path, rinfo)
 			if router != nil {
-				rs.RCache[path] = WeGoRouterCache{F: fn, R: router}
+				rs.RCache[path] = RuntofuRouterCache{F: fn, R: router}
 				return router
 			}
 		}

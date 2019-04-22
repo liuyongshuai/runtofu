@@ -1,4 +1,4 @@
-package wego
+package Runtofu
 
 import (
 	"fmt"
@@ -9,20 +9,20 @@ import (
 )
 
 //新建一个APP
-func NewWeGoAPP() *WeGoApp {
-	app := &WeGoApp{
-		Handlers: NewWeGoHandler(),
+func NewRuntofuAPP() *RuntofuApp {
+	app := &RuntofuApp{
+		Handlers: NewRuntofuHandler(),
 	}
 	return app
 }
 
 //APP结构体
-type WeGoApp struct {
-	Handlers *WeGoHandler //处理句柄
+type RuntofuApp struct {
+	Handlers *RuntofuHandler //处理句柄
 }
 
 //开始运行
-func (app *WeGoApp) Run() {
+func (app *RuntofuApp) Run() {
 	app.Handlers.Tpl.SetRootPathDir(app.Handlers.TplDir).SetTplExt(app.Handlers.TplExt)
 	err := http.ListenAndServe(":"+app.Handlers.Port, app.Handlers)
 	if err != nil {
@@ -31,80 +31,80 @@ func (app *WeGoApp) Run() {
 }
 
 //设置监听端口
-func (app *WeGoApp) SetPort(port string) *WeGoApp {
+func (app *RuntofuApp) SetPort(port string) *RuntofuApp {
 	app.Handlers.Port = port
 	return app
 }
 
 //设置错误信息提示
-func (app *WeGoApp) SetErrController(c controller.WeGoControllerInterface) *WeGoApp {
-	c = c.(controller.WeGoControllerInterface)
+func (app *RuntofuApp) SetErrController(c controller.RuntofuControllerInterface) *RuntofuApp {
+	c = c.(controller.RuntofuControllerInterface)
 	app.Handlers.SetErrController(c)
 	return app
 }
 
 //设置POST最大内存
-func (app *WeGoApp) SetMaxMemory(n int64) *WeGoApp {
+func (app *RuntofuApp) SetMaxMemory(n int64) *RuntofuApp {
 	app.Handlers.SetMaxMemory(n)
 	return app
 }
 
 //设置模板路径
-func (app *WeGoApp) SetTplDir(dir string) *WeGoApp {
+func (app *RuntofuApp) SetTplDir(dir string) *RuntofuApp {
 	app.Handlers.SetTplDir(dir)
 	return app
 }
 
 //设置模板扩展名称
-func (app *WeGoApp) SetTplExt(ext string) *WeGoApp {
+func (app *RuntofuApp) SetTplExt(ext string) *RuntofuApp {
 	app.Handlers.SetTplExt(ext)
 	return app
 }
 
 //设置给模板的公共参数
-func (app *WeGoApp) SetTplCommonData(data map[interface{}]interface{}) *WeGoApp {
+func (app *RuntofuApp) SetTplCommonData(data map[interface{}]interface{}) *RuntofuApp {
 	app.Handlers.SetTplCommonData(data)
 	return app
 }
 
 //设置给模板的公共参数
-func (app *WeGoApp) AddTplCommonData(k interface{}, v interface{}) *WeGoApp {
+func (app *RuntofuApp) AddTplCommonData(k interface{}, v interface{}) *RuntofuApp {
 	app.Handlers.AddTplCommonData(k, v)
 	return app
 }
 
 //添加一个插件
-func (app *WeGoApp) AddHooks(when int, hk HooksFunc) *WeGoApp {
+func (app *RuntofuApp) AddHooks(when int, hk HooksFunc) *RuntofuApp {
 	app.Handlers.AddHooks(when, hk)
 	return app
 }
 
 //添加模板函数
-func (app *WeGoApp) AddTplFuncMap(fm template.FuncMap) *WeGoApp {
+func (app *RuntofuApp) AddTplFuncMap(fm template.FuncMap) *RuntofuApp {
 	app.Handlers.Tpl.AddTplFuncs(fm)
 	return app
 }
 
 //添加模板函数
-func (app *WeGoApp) AddTplFunc(name string, fn interface{}) *WeGoApp {
+func (app *RuntofuApp) AddTplFunc(name string, fn interface{}) *RuntofuApp {
 	app.Handlers.Tpl.AddTplFunc(name, fn)
 	return app
 }
 
 //添加一个路由
-func (app *WeGoApp) AddRouter(r *router.WeGoRouterItem) *WeGoApp {
+func (app *RuntofuApp) AddRouter(r *router.RuntofuRouterItem) *RuntofuApp {
 	app.Handlers.AddRouter(r)
 	return app
 }
 
 //批量添加路由
-func (app *WeGoApp) AddRouters(rs ...*router.WeGoRouterItem) *WeGoApp {
+func (app *RuntofuApp) AddRouters(rs ...*router.RuntofuRouterItem) *RuntofuApp {
 	app.Handlers.AddRouters(rs...)
 	return app
 }
 
 //设置发生错误时的处理函数
-func (app *WeGoApp) SetRecoverFunc(fn RecoverFunc) *WeGoApp {
+func (app *RuntofuApp) SetRecoverFunc(fn RecoverFunc) *RuntofuApp {
 	app.Handlers.SetRecoverFunc(fn)
 	return app
 }

@@ -3,10 +3,10 @@
  * @package     admin
  * @date        2018-02-11 21:47
  */
-package controller
+package admin
 
 type IndexController struct {
-	BaseController
+	AdminBaseController
 }
 
 //校验是否登录

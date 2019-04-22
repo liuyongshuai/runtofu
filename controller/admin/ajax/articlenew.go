@@ -6,7 +6,7 @@
 package ajax
 
 import (
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/goutils/elem"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 )
@@ -23,7 +23,7 @@ func (bc *AdminAjaxArticleNewController) Run() {
 	tmp := strings.Split(tags, ",")
 	var tids []int
 	for _, t := range tmp {
-		td, _ := goUtils.MakeElemType(t).ToInt()
+		td, _ := elem.MakeItemElem(t).ToInt()
 		tids = append(tids, td)
 	}
 	isOri := false

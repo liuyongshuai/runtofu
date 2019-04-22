@@ -1,4 +1,4 @@
-package wego
+package Runtofu
 
 import (
 	"github.com/liuyongshuai/goUtils"
@@ -17,51 +17,51 @@ const (
 )
 
 //插件函数
-type HooksFunc func(ctx *context.WeGoContext)
+type HooksFunc func(ctx *context.RuntofuContext)
 
 //panic后的处理函数
-type RecoverFunc func(*context.WeGoContext)
+type RecoverFunc func(*context.RuntofuContext)
 
 //控制器注册器
-type WeGoHandler struct {
-	Hooks         map[int][]HooksFunc                //所有的插件列表
-	Router        *router.WeGoRouterList             //路由列表
-	RecoverFunc   RecoverFunc                        //panic后的处理函数
-	pool          sync.Pool                          //context上下文池
-	Tpl           *goUtils.TplBuilder                //模板对象类型
-	TplExt        string                             //模板的扩展后缀，默认“tpl”
-	TplDir        string                             //模板的根目录，默认“./tpl/”
-	TplCommonData map[interface{}]interface{}        //模板的公共参数
-	Port          string                             //监听的端口
-	MaxMemory     int64                              //POST时的最大内存
-	ErrController controller.WeGoControllerInterface //当匹配不上时的错误信息页面
+type RuntofuHandler struct {
+	Hooks         map[int][]HooksFunc                   //所有的插件列表
+	Router        *router.RuntofuRouterList             //路由列表
+	RecoverFunc   RecoverFunc                           //panic后的处理函数
+	pool          sync.Pool                             //context上下文池
+	Tpl           *goUtils.TplBuilder                   //模板对象类型
+	TplExt        string                                //模板的扩展后缀，默认“tpl”
+	TplDir        string                                //模板的根目录，默认“./tpl/”
+	TplCommonData map[interface{}]interface{}           //模板的公共参数
+	Port          string                                //监听的端口
+	MaxMemory     int64                                 //POST时的最大内存
+	ErrController controller.RuntofuControllerInterface //当匹配不上时的错误信息页面
 }
 
-func NewWeGoHandler() *WeGoHandler {
-	cr := &WeGoHandler{
+func NewRuntofuHandler() *RuntofuHandler {
+	cr := &RuntofuHandler{
 		Hooks:         make(map[int][]HooksFunc),
 		MaxMemory:     64 << 20,
 		Tpl:           goUtils.NewTplBuilder(),
 		TplExt:        "tpl",
 		TplDir:        "./tpl",
-		Router:        router.NewWeGoRouterList(),
+		Router:        router.NewRuntofuRouterList(),
 		TplCommonData: make(map[interface{}]interface{}),
 	}
 	cr.Hooks[HooksBeforeRun] = []HooksFunc{}
 	cr.Hooks[HooksAfterRun] = []HooksFunc{}
 	cr.pool.New = func() interface{} {
-		return context.NewWeGoContext()
+		return context.NewRuntofuContext()
 	}
 	return cr
 }
 
 //设置监听端口
-func (cr *WeGoHandler) SetPort(port string) {
+func (cr *RuntofuHandler) SetPort(port string) {
 	cr.Port = port
 }
 
 //添加一个插件
-func (cr *WeGoHandler) AddHooks(when int, hk HooksFunc) {
+func (cr *RuntofuHandler) AddHooks(when int, hk HooksFunc) {
 	plist, ok := cr.Hooks[when]
 	if !ok {
 		return
@@ -71,56 +71,56 @@ func (cr *WeGoHandler) AddHooks(when int, hk HooksFunc) {
 }
 
 //设置模板路径
-func (cr *WeGoHandler) SetTplDir(dir string) {
+func (cr *RuntofuHandler) SetTplDir(dir string) {
 	cr.TplDir = dir
 }
 
 //设置模板扩展名称
-func (cr *WeGoHandler) SetTplExt(ext string) {
+func (cr *RuntofuHandler) SetTplExt(ext string) {
 	cr.TplExt = ext
 }
 
 //设置给模板的公共参数
-func (cr *WeGoHandler) SetTplCommonData(data map[interface{}]interface{}) {
+func (cr *RuntofuHandler) SetTplCommonData(data map[interface{}]interface{}) {
 	for k, v := range data {
 		cr.TplCommonData[k] = v
 	}
 }
 
 //设置给模板的公共参数
-func (cr *WeGoHandler) AddTplCommonData(k interface{}, v interface{}) {
+func (cr *RuntofuHandler) AddTplCommonData(k interface{}, v interface{}) {
 	cr.TplCommonData[k] = v
 }
 
 //添加一个路由
-func (cr *WeGoHandler) AddRouter(r *router.WeGoRouterItem) {
+func (cr *RuntofuHandler) AddRouter(r *router.RuntofuRouterItem) {
 	cr.Router.AddRouter(r)
 }
 
 //批量添加路由
-func (cr *WeGoHandler) AddRouters(rs ...*router.WeGoRouterItem) {
+func (cr *RuntofuHandler) AddRouters(rs ...*router.RuntofuRouterItem) {
 	cr.Router.AddRouters(rs...)
 }
 
 //设置发生错误时的处理函数
-func (cr *WeGoHandler) SetRecoverFunc(fn RecoverFunc) {
+func (cr *RuntofuHandler) SetRecoverFunc(fn RecoverFunc) {
 	cr.RecoverFunc = fn
 }
 
 //设置POST最大内存
-func (cr *WeGoHandler) SetMaxMemory(n int64) {
+func (cr *RuntofuHandler) SetMaxMemory(n int64) {
 	cr.MaxMemory = n
 }
 
 //设置错误信息提示
-func (cr *WeGoHandler) SetErrController(c controller.WeGoControllerInterface) {
+func (cr *RuntofuHandler) SetErrController(c controller.RuntofuControllerInterface) {
 	cr.ErrController = c
 }
 
 //执行 http.Handler 接口
-func (cr *WeGoHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (cr *RuntofuHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	//从池子里提取上下文实例
-	ctx := cr.pool.Get().(*context.WeGoContext)
+	ctx := cr.pool.Get().(*context.RuntofuContext)
 	if ctx == nil {
 		panic("get context failed")
 	}
@@ -138,7 +138,7 @@ func (cr *WeGoHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	//控制层的类
-	var controllerIface controller.WeGoControllerInterface
+	var controllerIface controller.RuntofuControllerInterface
 	var ok bool
 
 	//开始匹配路由
@@ -148,14 +148,14 @@ func (cr *WeGoHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		reflectVal := reflect.ValueOf(cr.ErrController)
 		ct := reflect.Indirect(reflectVal).Type()
 		vc := reflect.New(ct)
-		controllerIface, ok = vc.Interface().(controller.WeGoControllerInterface)
+		controllerIface, ok = vc.Interface().(controller.RuntofuControllerInterface)
 		if !ok {
 			panic("invalid controller")
 		}
 	} else {
 		//实例化一个控制层对象
 		vc := reflect.New(routerItem.ControllerType)
-		controllerIface, ok = vc.Interface().(controller.WeGoControllerInterface)
+		controllerIface, ok = vc.Interface().(controller.RuntofuControllerInterface)
 		if !ok {
 			panic("invalid controller")
 		}

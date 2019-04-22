@@ -12,16 +12,16 @@ import (
 )
 
 //请求输入的相关信息结构体
-type WeGoInput struct {
-	Context     *WeGoContext      //上下文的指针
+type RuntofuInput struct {
+	Context     *RuntofuContext      //上下文的指针
 	Args        map[string]string //所有的参数
 	RequestBody []byte
 	Controller  reflect.Type //相关的控制层
 }
 
 //新建输入结构体
-func NewInput() *WeGoInput {
-	return &WeGoInput{
+func NewInput() *RuntofuInput {
+	return &RuntofuInput{
 		Args:       make(map[string]string),
 		Controller: nil,
 		Context:    nil,
@@ -29,35 +29,35 @@ func NewInput() *WeGoInput {
 }
 
 //重置输入数据
-func (input *WeGoInput) Reset(WeGoCtx *WeGoContext) {
-	input.Context = WeGoCtx
+func (input *RuntofuInput) Reset(RuntofuCtx *RuntofuContext) {
+	input.Context = RuntofuCtx
 	input.Args = make(map[string]string)
 	input.RequestBody = []byte{}
 	input.Controller = nil
 }
 
 //提取请求时用的协议，如"HTTP/1.1"
-func (input *WeGoInput) Protocol() string {
+func (input *RuntofuInput) Protocol() string {
 	return input.Context.Request.Proto
 }
 
 //获取请求的URI信息
-func (input *WeGoInput) URI() string {
+func (input *RuntofuInput) URI() string {
 	return input.Context.Request.RequestURI
 }
 
 //获取请求的URL信息
-func (input *WeGoInput) URL() string {
+func (input *RuntofuInput) URL() string {
 	return input.Context.Request.URL.Path
 }
 
 //请求的站点信息，如scheme://domain
-func (input *WeGoInput) Site() string {
+func (input *RuntofuInput) Site() string {
 	return input.Scheme() + "://" + input.Domain()
 }
 
 //请求协议，一般为“http”、“https”
-func (input *WeGoInput) Scheme() string {
+func (input *RuntofuInput) Scheme() string {
 	if scheme := input.Header("X-Forwarded-Proto"); scheme != "" {
 		return scheme
 	}
@@ -71,17 +71,17 @@ func (input *WeGoInput) Scheme() string {
 }
 
 //域名信息
-func (input *WeGoInput) Domain() string {
+func (input *RuntofuInput) Domain() string {
 	return input.Host()
 }
 
 //域名信息
-func (input *WeGoInput) GetCookie(key string) string {
+func (input *RuntofuInput) GetCookie(key string) string {
 	return input.Cookie(key)
 }
 
 //域名信息
-func (input *WeGoInput) Host() string {
+func (input *RuntofuInput) Host() string {
 	if input.Context.Request.Host != "" {
 		hostParts := strings.Split(input.Context.Request.Host, ":")
 		if len(hostParts) > 0 {
@@ -93,57 +93,57 @@ func (input *WeGoInput) Host() string {
 }
 
 //请求方法名，GET/POST.....
-func (input *WeGoInput) Method() string {
+func (input *RuntofuInput) Method() string {
 	return input.Context.Request.Method
 }
 
 //判断请求是否为某个方法
-func (input *WeGoInput) Is(method string) bool {
+func (input *RuntofuInput) Is(method string) bool {
 	return input.Method() == method
 }
 
 //是否为GET
-func (input *WeGoInput) IsGet() bool {
+func (input *RuntofuInput) IsGet() bool {
 	return input.Is("GET")
 }
 
 //是否为POST
-func (input *WeGoInput) IsPost() bool {
+func (input *RuntofuInput) IsPost() bool {
 	return input.Is("POST")
 }
 
 //是否为DELETE
-func (input *WeGoInput) IsDelete() bool {
+func (input *RuntofuInput) IsDelete() bool {
 	return input.Is("DELETE")
 }
 
 //是否为PUT
-func (input *WeGoInput) IsPut() bool {
+func (input *RuntofuInput) IsPut() bool {
 	return input.Is("PUT")
 }
 
 //是否为PATCH
-func (input *WeGoInput) IsPatch() bool {
+func (input *RuntofuInput) IsPatch() bool {
 	return input.Is("PATCH")
 }
 
 //是否为Ajax请求
-func (input *WeGoInput) IsAjax() bool {
+func (input *RuntofuInput) IsAjax() bool {
 	return input.Header("X-Requested-With") == "XMLHttpRequest"
 }
 
 //是否为https
-func (input *WeGoInput) IsSecure() bool {
+func (input *RuntofuInput) IsSecure() bool {
 	return input.Scheme() == "https"
 }
 
 //是否为上传文件的请求
-func (input *WeGoInput) IsUpload() bool {
+func (input *RuntofuInput) IsUpload() bool {
 	return strings.Contains(input.Header("Content-Type"), "multipart/form-data")
 }
 
 //客户端
-func (input *WeGoInput) IP() string {
+func (input *RuntofuInput) IP() string {
 	ips := input.Proxy()
 	if len(ips) > 0 && ips[0] != "" {
 		rip := strings.Split(ips[0], ":")
@@ -159,7 +159,7 @@ func (input *WeGoInput) IP() string {
 }
 
 // Proxy returns proxy client ips slice.
-func (input *WeGoInput) Proxy() []string {
+func (input *RuntofuInput) Proxy() []string {
 	if ips := input.Header("X-Forwarded-For"); ips != "" {
 		return strings.Split(ips, ",")
 	}
@@ -167,27 +167,27 @@ func (input *WeGoInput) Proxy() []string {
 }
 
 //返回Referer信息
-func (input *WeGoInput) Referer() string {
+func (input *RuntofuInput) Referer() string {
 	return input.Header("Referer")
 }
 
 //返回Referer信息
-func (input *WeGoInput) Refer() string {
+func (input *RuntofuInput) Refer() string {
 	return input.Referer()
 }
 
 //返回UserAgent
-func (input *WeGoInput) UserAgent() string {
+func (input *RuntofuInput) UserAgent() string {
 	return input.Header("User-Agent")
 }
 
 //参数长度
-func (input *WeGoInput) ParamsLen() int {
+func (input *RuntofuInput) ParamsLen() int {
 	return len(input.Args)
 }
 
 //提取某个参数
-func (input *WeGoInput) Param(key string) string {
+func (input *RuntofuInput) Param(key string) string {
 	ret, ok := input.Args[key]
 	if !ok {
 		return ""
@@ -196,22 +196,22 @@ func (input *WeGoInput) Param(key string) string {
 }
 
 //所有的参数
-func (input *WeGoInput) Params() map[string]string {
+func (input *RuntofuInput) Params() map[string]string {
 	return input.Args
 }
 
 //设置某个参数的值
-func (input *WeGoInput) SetParam(key, val string) {
+func (input *RuntofuInput) SetParam(key, val string) {
 	input.Args[key] = val
 }
 
 //清除所有的参数
-func (input *WeGoInput) ResetParams() {
+func (input *RuntofuInput) ResetParams() {
 	input.Args = make(map[string]string)
 }
 
 //提取一个参数值，包括/POST
-func (input *WeGoInput) Query(key string) string {
+func (input *RuntofuInput) Query(key string) string {
 	if val := input.Param(key); val != "" {
 		return val
 	}
@@ -222,12 +222,12 @@ func (input *WeGoInput) Query(key string) string {
 }
 
 //提取头信息里的信息
-func (input *WeGoInput) Header(key string) string {
+func (input *RuntofuInput) Header(key string) string {
 	return input.Context.Request.Header.Get(key)
 }
 
 //提取某个cookie值
-func (input *WeGoInput) Cookie(key string) string {
+func (input *RuntofuInput) Cookie(key string) string {
 	ck, err := input.Context.Request.Cookie(key)
 	if err != nil {
 		return ""
@@ -236,7 +236,7 @@ func (input *WeGoInput) Cookie(key string) string {
 }
 
 //以字节切片的形式返回原始的请求body信息
-func (input *WeGoInput) CopyBody(MaxMemory int64) []byte {
+func (input *RuntofuInput) CopyBody(MaxMemory int64) []byte {
 	if input.Context.Request.Body == nil {
 		return []byte{}
 	}
@@ -261,7 +261,7 @@ func (input *WeGoInput) CopyBody(MaxMemory int64) []byte {
 }
 
 //解析请求的表单
-func (input *WeGoInput) ParseFormOrMulitForm(maxMemory int64) error {
+func (input *RuntofuInput) ParseFormOrMulitForm(maxMemory int64) error {
 	if strings.Contains(input.Header("Content-Type"), "multipart/form-data") {
 		if err := input.Context.Request.ParseMultipartForm(maxMemory); err != nil {
 			return errors.New("Error parsing request body:" + err.Error())

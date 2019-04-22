@@ -1,7 +1,7 @@
-package controller
+package admin
 
 type TestController struct {
-	BaseController
+	AdminBaseController
 }
 
 //校验是否登录

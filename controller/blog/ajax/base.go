@@ -7,9 +7,9 @@ package ajax
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/controller"
-	"strings"
+	"github.com/liuyongshuai/goutils/elem"
+	"github.com/liuyongshuai/runtofu/controller/blog"
+	"net/http"
 )
 
 //ajax响应信息里result部分
@@ -25,37 +25,29 @@ type AjaxResponseData struct {
 }
 
 //Ajax层的基类
-type AdminAjaxBaseController struct {
-	controller.BaseController
+type RunToFuAjaxBaseController struct {
+	blog.RunToFuBaseController
 }
 
 //校验是否为Ajax请求
-func (bc *AdminAjaxBaseController) Prepare() error {
-	bc.UserInfo = bc.CheckLogin(true, func() {
-		bc.Notice(nil, 100100, "登录校验失败，请重新登录")
-	})
-	if bc.UserInfo.Uid <= 0 {
-		return fmt.Errorf("登录失败")
+func (bc *RunToFuAjaxBaseController) Prepare() error {
+	if !bc.IsAjax() {
+		bc.Notice(nil, 100404, "非法请求，请确认后重试")
+		bc.SetStatus(http.StatusForbidden)
+		return fmt.Errorf("invalid request")
 	}
 	return nil
 }
 
 //返回json数据
-func (bc *AdminAjaxBaseController) Notice(d interface{}, ret ...interface{}) {
+func (bc *RunToFuAjaxBaseController) Notice(d interface{}, ret ...interface{}) {
 	var errno int64 = 0
 	var errmsg = "ok"
-	f := ""
 	if len(ret) > 0 {
-		errno, _ = goUtils.MakeElemType(ret[0]).ToInt64()
+		errno, _ = elem.MakeItemElem(ret[0]).ToInt64()
 	}
 	if len(ret) > 1 {
-		errmsg = goUtils.MakeElemType(ret[1]).ToString()
-	}
-	if len(ret) > 2 {
-		f = goUtils.MakeElemType(ret[2]).ToString()
-	}
-	if strings.Count(errmsg, "%") > 0 {
-		errmsg = fmt.Sprintf(errmsg, f)
+		errmsg = elem.MakeItemElem(ret[1]).ToString()
 	}
 	bc.RenderJson(AjaxResponseData{
 		Result: AjaxResponseResult{
