@@ -11,16 +11,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/configer"
 	"strings"
 )
 
 type WeiboOpenApi struct {
-	Conf config.OauthWeiboConf
+	Conf configer.OauthWeiboConf
 }
 
 //初始化各种配置信息
-func (wb *WeiboOpenApi) InitConf(conf config.OauthWeiboConf) {
+func (wb *WeiboOpenApi) InitConf(conf configer.OauthWeiboConf) {
 	wb.Conf = conf
 }
 

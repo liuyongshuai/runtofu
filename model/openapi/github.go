@@ -12,16 +12,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/configer"
 	"strings"
 )
 
 type GithubOpenApi struct {
-	Conf config.OauthGithubConf
+	Conf configer.OauthGithubConf
 }
 
 //初始化各种配置信息
-func (gh *GithubOpenApi) InitConf(conf config.OauthGithubConf) {
+func (gh *GithubOpenApi) InitConf(conf configer.OauthGithubConf) {
 	gh.Conf = conf
 }
 

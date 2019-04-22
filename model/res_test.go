@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/kr/pretty"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/configer"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -23,12 +23,12 @@ func init() {
 	flag.Parse()
 
 	// 解析配置。
-	if err := config.GetConfiger().Init(configPath); err != nil {
+	if err := configer.GetConfiger().Init(configPath); err != nil {
 		fmt.Printf("fail to read config.||err=%v||config=%v", err, configPath)
 		os.Exit(1)
 		return
 	}
-	conf := config.GetConfiger()
+	conf := configer.GetConfiger()
 	fmt.Printf("%# v\n", pretty.Formatter(conf))
 
 	//初始化model层

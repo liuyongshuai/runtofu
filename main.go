@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/kr/pretty"
 	"github.com/liuyongshuai/runtofu/configer"
-	"github.com/liuyongshuai/runtofu/goweb/controller"
+	"github.com/liuyongshuai/runtofu/controller/admin"
+	"github.com/liuyongshuai/runtofu/controller/blog"
+	"github.com/liuyongshuai/runtofu/goweb"
+	"github.com/liuyongshuai/runtofu/goweb/context"
 	"github.com/liuyongshuai/runtofu/model"
 	"github.com/liuyongshuai/runtofu/routers"
 	"github.com/liuyongshuai/runtofu/utils"
-	"github.com/liuyongshuai/runtofu/goweb"
-	"github.com/liuyongshuai/runtofu/goweb/context"
 	"os"
 )
 
@@ -39,17 +40,38 @@ func main() {
 	//阻塞主进程
 	ch := make(chan interface{})
 
+	//APP的一些设置项
+	runtofuApp := goweb.NewRuntofuAPP(). //新建一个app
+		SetPort(conf.Http.Port). //监听端口
+		SetTplDir(conf.Http.TplDir). //模板根目录
+		SetTplExt(conf.Http.TplExt). //模板扩展名称
+		AddTplCommonData("SITE_NAME", conf.Http.SiteName). //站点的名称
+		AddTplCommonData("STATIC_PREFIX", conf.Common.StaticPrefix). //静态资源前缀
+		AddTplCommonData("WEIBO_OAUTH", model.MWeiboApi.GetAuthorizeUrl()). //weibo登录的跳转地址
+		AddTplCommonData("GITHUB_OAUTH", model.MGithubApi.GetAuthorizeUrl()). //github登录的跳转地址
+		AddTplCommonData("runtofuUserInfo", model.RuntofuUserInfo{}). //登录后的用户信息，先赋个空值
+		AddTplFuncMap(utils.TplFuncs). //自定义的模板函数
+		SetErrController(&blog.ErrorController{}). //错误页面
+		AddRouters(routers.BlogRouterList...). //路由信息
+		SetRecoverFunc(func(ctx *context.RuntofuContext) { //panic时的处理函数
+			if err := recover(); err != nil {
+				errmsg := "url=" + ctx.Input.URI()
+				fmt.Println(err, errmsg)
+			}
+		})
+	go runtofuApp.Run()
+
 	//admin管理系统的一些设置项
 	adminApp := goweb.NewRuntofuAPP(). //新建一个app
-					SetPort(conf.Http.Port).                                     //监听端口
-					SetTplDir(conf.Http.TplDir).                                 //模板根目录
-					SetTplExt(conf.Http.TplExt).                                 //模板扩展名称
-					AddTplCommonData("SITE_NAME", conf.Http.SiteName).           //站点的名称
-					AddTplCommonData("STATIC_PREFIX", conf.Common.StaticPrefix). //静态资源前缀
-					AddTplFuncMap(utils.TplFuncs).                               //自定义的模板函数
-					SetErrController(&controller.ErrorController{}).             //错误页面
-					AddRouters(routers.AdminRouterList...).                      //路由信息
-					SetRecoverFunc(func(ctx *context.RuntofuContext) {              //panic时的处理函数
+		SetPort(conf.Http.Port). //监听端口
+		SetTplDir(conf.Http.TplDir). //模板根目录
+		SetTplExt(conf.Http.TplExt). //模板扩展名称
+		AddTplCommonData("SITE_NAME", conf.Http.SiteName). //站点的名称
+		AddTplCommonData("STATIC_PREFIX", conf.Common.StaticPrefix). //静态资源前缀
+		AddTplFuncMap(utils.TplFuncs). //自定义的模板函数
+		SetErrController(&admin.ErrorController{}). //错误页面
+		AddRouters(routers.AdminRouterList...). //路由信息
+		SetRecoverFunc(func(ctx *context.RuntofuContext) { //panic时的处理函数
 			if err := recover(); err != nil {
 				errmsg := "url=" + ctx.Input.URI()
 				fmt.Println(err, errmsg)

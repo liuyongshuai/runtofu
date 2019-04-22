@@ -10,7 +10,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/garyburd/redigo/redis"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/config"
+	"github.com/liuyongshuai/runtofu/configer"
 	"github.com/liuyongshuai/runtofu/model/openapi"
 )
 
@@ -60,7 +60,7 @@ var MSnowFlake, _ = goUtils.NewIDGenerator().
 	SetWorkerId(1).
 	Init()
 
-func Init(conf *config.WeGoAdminConfig) error {
+func Init(conf *configer.WeGoAdminConfig) error {
 	if len(conf.Common.CookieKey) > 0 {
 		CookieKey = conf.Common.CookieKey
 	}
