@@ -14,7 +14,7 @@ import (
 )
 
 //路由解析函数
-type RouterMatchFunc func(*context.WeGoContext, string, *WeGoRouterItem) *WeGoRouterItem
+type RouterMatchFunc func(*context.RuntofuContext, string, *RuntofuRouterItem) *RuntofuRouterItem
 
 /**
 匹配全路径路由
@@ -29,7 +29,7 @@ type RouterMatchFunc func(*context.WeGoContext, string, *WeGoRouterItem) *WeGoRo
 	/ggtest/abc
 	/ggtest/44444
 */
-func matchPathInfoRouter(ctx *context.WeGoContext, uri string, rt *WeGoRouterItem) *WeGoRouterItem {
+func matchPathInfoRouter(ctx *context.RuntofuContext, uri string, rt *RuntofuRouterItem) *RuntofuRouterItem {
 	//请求的URL的切片
 	pathinfo := strings.Split(uri, "/")
 	//事先配置好的路由的切片，要和URL逐个比对，若有:arg、:arg:这样的还要替换
@@ -62,7 +62,7 @@ func matchPathInfoRouter(ctx *context.WeGoContext, uri string, rt *WeGoRouterIte
 config 为 `^ggtest/aid(\w+?)/cid(\d+)$`，Param 为 aid=$1&cid=$2
 则将请求中aid后面的字符串挑出来赋给aid，cid后面的字符串挑出来赋给cid
 */
-func matchRegexpRouter(ctx *context.WeGoContext, uri string, rt *WeGoRouterItem) *WeGoRouterItem {
+func matchRegexpRouter(ctx *context.RuntofuContext, uri string, rt *RuntofuRouterItem) *RuntofuRouterItem {
 	//先判断请求的URLj否匹配给定的正则表达式
 	match, err := regexp.MatchString(rt.Config, uri)
 	if err != nil || !match {
