@@ -16,7 +16,7 @@ import (
 var gPageSize int64 = 20
 
 type RunToFuBaseController struct {
-	controller.ToFuController
+	controller.RuntofuController
 }
 
 //获取已登录的用户信息

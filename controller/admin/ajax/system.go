@@ -9,7 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/liuyongshuai/goutils/helper"
+	"github.com/liuyongshuai/goUtils"
 	"github.com/liuyongshuai/runtofu/configer"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
@@ -286,7 +286,7 @@ func (bc *AdminAjaxSystemController) uploadImage() {
 		bc.RenderJson(resp)
 		return
 	}
-	md5 := helper.MD5(string(data))
+	md5 := goUtils.MD5(string(data))
 	key := md5 + ext
 	fp.Seek(0, 0)
 	rder := bufio.NewReader(fp)

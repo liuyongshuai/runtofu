@@ -8,7 +8,7 @@ package ajax
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goutils/helper"
+	"github.com/liuyongshuai/goUtils"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 	"time"
@@ -38,14 +38,14 @@ func (bc *AdminAjaxLoginController) Run() {
 			bc.Notice(nil, 100100, "登录失败：获取用户信息失败")
 			return
 		}
-		p := helper.MD5(passwd + uinfo.Passcode)
+		p := goUtils.MD5(passwd + uinfo.Passcode)
 		if p != uinfo.Passwd {
 			bc.Notice(nil, 100100, "登录失败：校验密码失败")
 			return
 		}
 		//前面16位随机数 + uid的base62 + 前面两项的md5值。别问为啥这么做，就是特么的感觉牛X些
-		cookieVal := helper.RandomStr(16) + helper.Base62Encode(uinfo.Uid)
-		md5 := strings.ToUpper(helper.MD5(cookieVal))
+		cookieVal := goUtils.RandomStr(16) + goUtils.Base62Encode(uinfo.Uid)
+		md5 := strings.ToUpper(goUtils.MD5(cookieVal))
 		cookieVal += md5
 		jsUinfo, err := json.Marshal(model.AdminCookieInfo{
 			Uid:       uinfo.Uid,

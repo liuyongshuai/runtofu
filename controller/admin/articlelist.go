@@ -6,8 +6,8 @@
 package admin
 
 import (
-	"github.com/liuyongshuai/runtofu/funcs"
 	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/utils"
 )
 
 type ArticleListController struct {
@@ -23,8 +23,8 @@ func (bc *ArticleListController) Run() {
 	is_rec, _ := bc.GetParam("is_rec", -1).ToInt()
 	sctime := bc.GetParam("sctime", "").ToString()
 	ectime := bc.GetParam("ectime", "").ToString()
-	st := funcs.StrToTime(sctime)
-	et := funcs.StrToTime(ectime)
+	st := utils.StrToTime(sctime)
+	et := utils.StrToTime(ectime)
 
 	cond := make(map[string]interface{})
 	if is_publish >= 0 {

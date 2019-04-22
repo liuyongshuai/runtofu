@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/controller"
+	"github.com/liuyongshuai/runtofu/goweb/controller"
 	"github.com/liuyongshuai/runtofu/model"
 	"github.com/liuyongshuai/runtofu/utils"
 	"html/template"
@@ -15,7 +15,7 @@ import (
 var gPageSize int64 = 30
 
 type AdminBaseController struct {
-	controller.ToFuController
+	controller.RuntofuController
 	UserInfo model.AdminUserInfo //登录后的用户的信息
 }
 
