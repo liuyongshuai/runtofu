@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/kr/pretty"
+	"github.com/liuyongshuai/goUtils"
 	"github.com/liuyongshuai/runtofu/configer"
 	"github.com/liuyongshuai/runtofu/controller/admin"
 	"github.com/liuyongshuai/runtofu/controller/blog"
@@ -13,6 +14,7 @@ import (
 	"github.com/liuyongshuai/runtofu/routers"
 	"github.com/liuyongshuai/runtofu/utils"
 	"os"
+	"runtime"
 )
 
 func main() {
@@ -57,6 +59,10 @@ func main() {
 			if err := recover(); err != nil {
 				errmsg := "url=" + ctx.Input.URI()
 				fmt.Println(err, errmsg)
+				buf := make([]byte, 1<<16)
+				stackSize := runtime.Stack(buf, false)
+				stackStr := goUtils.ByteToStr(buf[0:stackSize])
+				fmt.Println(stackStr)
 			}
 		})
 	go runtofuApp.Run()
@@ -75,6 +81,10 @@ func main() {
 			if err := recover(); err != nil {
 				errmsg := "url=" + ctx.Input.URI()
 				fmt.Println(err, errmsg)
+				buf := make([]byte, 1<<16)
+				stackSize := runtime.Stack(buf, false)
+				stackStr := goUtils.ByteToStr(buf[0:stackSize])
+				fmt.Println(stackStr)
 			}
 		})
 	go adminApp.Run()
