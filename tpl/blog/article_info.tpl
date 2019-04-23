@@ -8,7 +8,7 @@
 {{ editor_js "lib/jquery.flowchart.min.js"  }}
 {{ editor_css "css/editormd.preview.css"  }}
 {{ editor_js "editormd.js"  }}
-
+<script type="text/javascript">var aid = "{{.aid}}";</script>
 <div class="content-wrapper">
     {{/******文章顶部的标题、标签、创建时间、是否原创等******/}}
     <div class="header">
