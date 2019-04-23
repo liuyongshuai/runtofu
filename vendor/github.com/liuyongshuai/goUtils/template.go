@@ -234,7 +234,8 @@ func (tb *TplBuilder) getTplRelated(tplName string, ret map[string]string) error
 //规范化模板名称，就是去掉根目录即可
 func (tb *TplBuilder) formatTplName(tname string) string {
 	if strings.HasPrefix(tname, tb.TplRootPathDir) {
-		tname = Substr(tname, len(tb.TplRootPathDir), len(tname))
+		tname = tname[len(tb.TplRootPathDir):]
+		tname = strings.TrimLeft(tname, "/")
 	}
 	tname = strings.TrimLeft(tname, pathSep)
 	return tname
