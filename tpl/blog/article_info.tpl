@@ -1,5 +1,4 @@
 {{ template "header" .}}
-<script charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/changyan.js"></script>
 {{ editor_js "lib/marked.min.js" }}
 {{ editor_js "lib/prettify.min.js"  }}
 {{ editor_js "lib/raphael.min.js"  }}
@@ -9,10 +8,7 @@
 {{ editor_js "lib/jquery.flowchart.min.js"  }}
 {{ editor_css "css/editormd.preview.css"  }}
 {{ editor_js "editormd.js"  }}
-<script type="text/javascript">
-    var aid = "{{.aid}}";
-    window.changyan.api.config({appid:'cytuXGFt9',conf:'prod_d84cb3eb893285f0487cb3298fa7ee1f'});
-</script>
+
 <div class="content-wrapper">
     {{/******文章顶部的标题、标签、创建时间、是否原创等******/}}
     <div class="header">
@@ -39,7 +35,6 @@
     </div>
     {{/******通过Ajax异步加载的文章详细内容******/}}
     <div class="markdown-body" id="tofu_info_markdown_wrapper"></div>
-    <div id="SOHUCS" sid="{{.aid}}"></div>
 </div>
 {{ static_js "article.js"  }}
 
