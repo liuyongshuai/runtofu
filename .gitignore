@@ -29,5 +29,4 @@ nohup.out
 core*
 *.cmake
 *_bin
-
-
+*.conf
