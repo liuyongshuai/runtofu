@@ -4,6 +4,7 @@ workspace=$(cd $(dirname $0) && pwd -P)
 
 action="$1"
 conf="./conf/service.conf"
+mkdir log
 
 function usage() {
         echo "manage runtofu process"

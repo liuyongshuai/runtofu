@@ -35,7 +35,6 @@ clean:
 	git checkout -- $(RANK_SEARCH_GO_FILE) $(RANK_REC_GO_FILE)
 
 prepare:
-	mkdir -p "$(OUTPUT)/log"
 	for i in $(OUTPUT_DIRS); do mkdir -p "$(OUTPUT)/$$i"; done
 	cp -vr "$(CONF)" "$(OUTPUT)"
 	cp -vr "$(TEMPLATE_DIR)" "$(OUTPUT)"
