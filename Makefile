@@ -9,8 +9,6 @@ GROUP    := $(shell dirname $(APP_ROOT))
 OUTPUT              = $(CURDIR)/output
 CONF                = $(CURDIR)/conf
 TEMPLATE_DIR        = $(CURDIR)/tpl
-GLIDE_LOCK          = $(CURDIR)/glide.lock
-GLIDE_YAML          = $(CURDIR)/glide.yaml
 
 OUTPUT_LIB_DIR = $(OUTPUT)/lib
 
@@ -19,11 +17,9 @@ OUTPUT_DIRS = conf tpl bin
 BUILD_ROOT   := $(shell git rev-parse --show-toplevel)/build
 BUILD_TARGET = src/$(PACKAGE_ROOT)
 BUILD_DIR    = $(BUILD_ROOT)/$(BUILD_TARGET)
-include ./Makefile.in
 
 export GOPATH=$(BUILD_ROOT)
 export GOBIN=$(BUILD_ROOT)/bin
-export GO15VENDOREXPERIMENT=1
 
 .DEFAULT: all
 all: build
