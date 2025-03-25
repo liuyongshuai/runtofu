@@ -7,19 +7,19 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 	"strings"
 	"time"
 )
 
-//实例化一个m层
+// 实例化一个m层
 func NewArticleModel() *ArticleModel {
 	ret := &ArticleModel{}
 	ret.Table = "article_info"
 	return ret
 }
 
-//文章的详细信息
+// 文章的详细信息
 type ArticleInfo struct {
 	ArticleId      int64     `json:"article_id"`       //文章ID
 	Title          string    `json:"title"`            //文章标题
@@ -37,7 +37,7 @@ type ArticleModel struct {
 	BaseModel
 }
 
-//添加一篇文章信息
+// 添加一篇文章信息
 func (m *ArticleModel) AddArticleInfo(title, content string, tagIds []int, isOrigin bool) (int64, bool, error) {
 	var articleId int64
 	var err error
@@ -70,7 +70,7 @@ func (m *ArticleModel) AddArticleInfo(title, content string, tagIds []int, isOri
 	}
 	var tags []string
 	for _, tid := range tagIds {
-		tags = append(tags, goUtils.MakeElemType(tid).ToString())
+		tags = append(tags, negoutils.MakeElemType(tid).ToString())
 	}
 	articleData["tags"] = strings.Join(tags, ",")
 	articleData["create_time"] = time.Now().Unix()
@@ -107,7 +107,7 @@ func (m *ArticleModel) AddArticleInfo(title, content string, tagIds []int, isOri
 	return articleId, true, nil
 }
 
-//清理文件信息
+// 清理文件信息
 func (m *ArticleModel) DeleteArticleInfo(articleId int64) (bool, error) {
 	if articleId <= 0 {
 		return false, fmt.Errorf("invalid article id")
@@ -148,7 +148,7 @@ func (m *ArticleModel) DeleteArticleInfo(articleId int64) (bool, error) {
 	return true, nil
 }
 
-//更新一篇文章信息
+// 更新一篇文章信息
 func (m *ArticleModel) UpdateArticleInfo(articleId int64, data map[string]interface{}) (bool, error) {
 	if articleId <= 0 {
 		return false, fmt.Errorf("invalid article id")
@@ -192,7 +192,7 @@ func (m *ArticleModel) UpdateArticleInfo(articleId int64, data map[string]interf
 	return true, nil
 }
 
-//提取一篇文章信息
+// 提取一篇文章信息
 func (m *ArticleModel) GetArticleInfo(aid int64) (ArticleInfo, error) {
 	ainfo := ArticleInfo{}
 	if aid <= 0 {
@@ -208,7 +208,7 @@ func (m *ArticleModel) GetArticleInfo(aid int64) (ArticleInfo, error) {
 	return ainfo, nil
 }
 
-//提取一堆文章信息
+// 提取一堆文章信息
 func (m *ArticleModel) GetArticleInfos(aids []int64) (map[int64]ArticleInfo, error) {
 	ret := make(map[int64]ArticleInfo)
 	if len(aids) <= 0 {
@@ -224,7 +224,7 @@ func (m *ArticleModel) GetArticleInfos(aids []int64) (map[int64]ArticleInfo, err
 	return ret, nil
 }
 
-//提取文章列表，按时间倒序排序
+// 提取文章列表，按时间倒序排序
 func (m *ArticleModel) GetArticleList(cond map[string]interface{}, page, pagesize int) ([]ArticleInfo, error) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `article_id` DESC")
 	var ret []ArticleInfo
@@ -234,13 +234,13 @@ func (m *ArticleModel) GetArticleList(cond map[string]interface{}, page, pagesiz
 	return ret, nil
 }
 
-//提取文章总数
+// 提取文章总数
 func (m *ArticleModel) GetArticleTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//格式化文章信息
-func formatArticleInfo(row map[string]goUtils.ElemType) ArticleInfo {
+// 格式化文章信息
+func formatArticleInfo(row map[string]negoutils.ElemType) ArticleInfo {
 	ainfo := ArticleInfo{}
 	ainfo.ArticleId, _ = row["article_id"].ToInt64()
 	ainfo.Title = row["title"].ToString()
@@ -248,7 +248,7 @@ func formatArticleInfo(row map[string]goUtils.ElemType) ArticleInfo {
 	ainfo.ShortDesc = row["short_desc"].ToString()
 	ts := strings.Split(row["tags"].ToString(), ",")
 	for _, t := range ts {
-		tid, _ := goUtils.MakeElemType(t).ToInt()
+		tid, _ := negoutils.MakeElemType(t).ToInt()
 		if tid <= 0 {
 			continue
 		}

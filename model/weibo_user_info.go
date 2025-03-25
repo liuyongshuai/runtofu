@@ -8,17 +8,17 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
-//实例化一个m层
+// 实例化一个m层
 func NewWeiboUserModel() *WeiboUserModel {
 	ret := &WeiboUserModel{}
 	ret.Table = "weibo_user"
 	return ret
 }
 
-//详细信息
+// 详细信息
 type WeiboUserInfo struct {
 	WbUid                 int64  `json:"wb_uid"`
 	ScreenName            string `json:"screen_name"`
@@ -35,7 +35,7 @@ type WeiboUserModel struct {
 	BaseModel
 }
 
-//增
+// 增
 func (m *WeiboUserModel) AddWeiboUserInfo(uinfo WeiboUserInfo) (err error) {
 	if uinfo.WbUid <= 0 {
 		return errors.New("invalid weibo uid")
@@ -57,7 +57,7 @@ func (m *WeiboUserModel) AddWeiboUserInfo(uinfo WeiboUserInfo) (err error) {
 	return nil
 }
 
-//改
+// 改
 func (m *WeiboUserModel) UpdateWeiboUserInfo(uid int64, data map[string]interface{}) (err error) {
 	if uid <= 0 {
 		return fmt.Errorf("invalid weibo user id")
@@ -75,7 +75,7 @@ func (m *WeiboUserModel) UpdateWeiboUserInfo(uid int64, data map[string]interfac
 	return
 }
 
-//查
+// 查
 func (m *WeiboUserModel) GetWeiboUserInfo(uid int64) (uinfo WeiboUserInfo, err error) {
 	if uid <= 0 {
 		return
@@ -90,7 +90,7 @@ func (m *WeiboUserModel) GetWeiboUserInfo(uid int64) (uinfo WeiboUserInfo, err e
 	return
 }
 
-//提取文章列表，按时间倒序排序
+// 提取文章列表，按时间倒序排序
 func (m *WeiboUserModel) GetWeiboUserList(cond map[string]interface{}, page, pagesize int) ([]WeiboUserInfo, error) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `wb_uid` DESC")
 	var ret []WeiboUserInfo
@@ -100,13 +100,13 @@ func (m *WeiboUserModel) GetWeiboUserList(cond map[string]interface{}, page, pag
 	return ret, nil
 }
 
-//提取文章总数
+// 提取文章总数
 func (m *WeiboUserModel) GetWeiboUserTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//格式化文章信息
-func formatWeiboUserInfo(row map[string]goUtils.ElemType) (ret WeiboUserInfo) {
+// 格式化文章信息
+func formatWeiboUserInfo(row map[string]negoutils.ElemType) (ret WeiboUserInfo) {
 	ret.WbUid, _ = row["wb_uid"].ToInt64()
 	ret.ScreenName = row["screen_name"].ToString()
 	ret.Name = row["name"].ToString()

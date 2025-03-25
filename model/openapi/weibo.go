@@ -10,22 +10,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/configer"
+	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/confutils"
 	"strings"
 )
 
 type WeiboOpenApi struct {
-	Conf configer.OauthWeiboConf
+	Conf confutils.OauthWeiboConf
 }
 
-//初始化各种配置信息
-func (wb *WeiboOpenApi) InitConf(conf configer.OauthWeiboConf) {
+// 初始化各种配置信息
+func (wb *WeiboOpenApi) InitConf(conf confutils.OauthWeiboConf) {
 	wb.Conf = conf
 }
 
-//获取要跳到oauth认证的页面地址
-//http://open.weibo.com/wiki/Oauth2/authorize
+// 获取要跳到oauth认证的页面地址
+// http://open.weibo.com/wiki/Oauth2/authorize
 func (wb *WeiboOpenApi) GetAuthorizeUrl() string {
 	retUrl := wb.Conf.ApiUrl + "/oauth2/authorize"
 	retUrl = fmt.Sprintf("%s?client_id=%s&redirect_uri=%s&scope=email,follow_app_official_microblog",
@@ -40,12 +40,12 @@ type WeiboAccessToken struct {
 	IsRealName  string `json:"isRealName"`
 }
 
-//获取授权过的Access Token
-//http://open.weibo.com/wiki/Oauth2/access_token
+// 获取授权过的Access Token
+// http://open.weibo.com/wiki/Oauth2/access_token
 func (wb *WeiboOpenApi) GetAccessToken(authCode string) (ret WeiboAccessToken, err error) {
 	ret = WeiboAccessToken{}
 	url := wb.Conf.ApiUrl + "/oauth2/access_token"
-	httpReq := goUtils.NewHttpClient(url, context.Background())
+	httpReq := negoutils.NewHttpClient(url, context.Background())
 	httpReq.SetUrl(url)
 	httpReq.AddField("client_id", wb.Conf.AppKey)
 	httpReq.AddField("client_secret", wb.Conf.AppSecret)
@@ -74,12 +74,12 @@ type WeiboTokenInfo struct {
 	ExpireIn string `json:"expire_in"`
 }
 
-//查询用户access_token的授权相关信息，包括授权时间，过期时间和scope权限。
-//http://open.weibo.com/wiki/Oauth2/get_token_info
+// 查询用户access_token的授权相关信息，包括授权时间，过期时间和scope权限。
+// http://open.weibo.com/wiki/Oauth2/get_token_info
 func (wb *WeiboOpenApi) GetTokenInfo(token string) (ret WeiboTokenInfo, err error) {
 	ret = WeiboTokenInfo{}
 	url := wb.Conf.ApiUrl + "/oauth2/get_token_info"
-	httpReq := goUtils.NewHttpClient(url, context.Background())
+	httpReq := negoutils.NewHttpClient(url, context.Background())
 	httpReq.SetUrl(url)
 	httpReq.AddField("access_token", token)
 	resp, err := httpReq.Post()
@@ -106,13 +106,13 @@ type ApiWeiboUserInfo struct {
 	ProfileUrl      string `json:"profile_url"`       //用户的微博统一URL地址
 }
 
-//根据用户ID获取用户信息
-//http://open.weibo.com/wiki/2/users/show
+// 根据用户ID获取用户信息
+// http://open.weibo.com/wiki/2/users/show
 func (wb *WeiboOpenApi) GetUserInfo(token, uid string) (ret ApiWeiboUserInfo, rawJson string, err error) {
 	ret = ApiWeiboUserInfo{}
 	url := wb.Conf.ApiUrl + "/2/users/show.json"
 	url = fmt.Sprintf("%s?uid=%s&access_token=%s", url, uid, token)
-	httpReq := goUtils.NewHttpClient(url, context.Background())
+	httpReq := negoutils.NewHttpClient(url, context.Background())
 	httpReq.SetUrl(url)
 	httpReq.SetTimeout(10)
 	resp, err := httpReq.Get()

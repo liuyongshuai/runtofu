@@ -8,7 +8,7 @@ package oauth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/controller/blog"
 	"github.com/liuyongshuai/runtofu/model"
 	"strconv"
@@ -20,7 +20,7 @@ type WeiboOauthController struct {
 	blog.RunToFuBaseController
 }
 
-//运行主逻辑
+// 运行主逻辑
 func (bc *WeiboOauthController) Run() {
 	bc.TplName = "oauth.tpl"
 	code := bc.GetParam("code", "").ToString()
@@ -114,8 +114,8 @@ func (bc *WeiboOauthController) Run() {
 
 	//登录成功，设置一下cookie
 	//前面16位随机数 + uid的base62 + 前面几项的md5值。别问为啥这么做，就是特么的感觉牛X些
-	cookieVal := goUtils.RandomStr(16) + goUtils.Base62Encode(localUInfo.Uid)
-	md5 := strings.ToUpper(goUtils.MD5(cookieVal))
+	cookieVal := negoutils.RandomStr(16) + negoutils.Base62Encode(localUInfo.Uid)
+	md5 := strings.ToUpper(negoutils.MD5(cookieVal))
 	cookieVal += md5
 	jsUinfo, err := json.Marshal(model.BlogCookieInfo{
 		RuntofuUid: localUInfo.Uid,
@@ -146,9 +146,9 @@ func (bc *WeiboOauthController) Run() {
 		model.BlogCookieKey,
 		cookieVal,
 		localWeiboUserInfo.AccessTokenExpireTime,
-		"/", //path
+		"/",                   //path
 		bc.Ctx.Input.Domain(), //domain
-		true, //secure
+		true,                  //secure
 	)
 	bc.RenderHtml()
 }

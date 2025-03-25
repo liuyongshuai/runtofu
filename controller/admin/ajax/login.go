@@ -8,7 +8,7 @@ package ajax
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 	"time"
@@ -18,12 +18,12 @@ type AdminAjaxLoginController struct {
 	AdminAjaxBaseController
 }
 
-//校验是否为Ajax请求
+// 校验是否为Ajax请求
 func (bc *AdminAjaxLoginController) Prepare() error {
 	return nil
 }
 
-//返回数据信息
+// 返回数据信息
 func (bc *AdminAjaxLoginController) Run() {
 	name := bc.GetParam("name", "").ToString()
 	passwd := bc.GetParam("passwd", "").ToString()
@@ -38,14 +38,14 @@ func (bc *AdminAjaxLoginController) Run() {
 			bc.Notice(nil, 100100, "登录失败：获取用户信息失败")
 			return
 		}
-		p := goUtils.MD5(passwd + uinfo.Passcode)
+		p := negoutils.MD5(passwd + uinfo.Passcode)
 		if p != uinfo.Passwd {
 			bc.Notice(nil, 100100, "登录失败：校验密码失败")
 			return
 		}
 		//前面16位随机数 + uid的base62 + 前面两项的md5值。别问为啥这么做，就是特么的感觉牛X些
-		cookieVal := goUtils.RandomStr(16) + goUtils.Base62Encode(uinfo.Uid)
-		md5 := strings.ToUpper(goUtils.MD5(cookieVal))
+		cookieVal := negoutils.RandomStr(16) + negoutils.Base62Encode(uinfo.Uid)
+		md5 := strings.ToUpper(negoutils.MD5(cookieVal))
 		cookieVal += md5
 		jsUinfo, err := json.Marshal(model.AdminCookieInfo{
 			Uid:       uinfo.Uid,

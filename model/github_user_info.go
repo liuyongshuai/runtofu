@@ -8,17 +8,17 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
-//实例化一个m层
+// 实例化一个m层
 func NewGithubUserModel() *GithubUserModel {
 	ret := &GithubUserModel{}
 	ret.Table = "github_user"
 	return ret
 }
 
-//详细信息
+// 详细信息
 type GithubUserInfo struct {
 	GithubUid   int64  `json:"github_uid"`
 	LoginName   string `json:"login_name"`
@@ -33,7 +33,7 @@ type GithubUserModel struct {
 	BaseModel
 }
 
-//增
+// 增
 func (m *GithubUserModel) AddGithubUserInfo(uinfo GithubUserInfo) (err error) {
 	if uinfo.GithubUid <= 0 {
 		return errors.New("invalid Github uid")
@@ -53,7 +53,7 @@ func (m *GithubUserModel) AddGithubUserInfo(uinfo GithubUserInfo) (err error) {
 	return nil
 }
 
-//改
+// 改
 func (m *GithubUserModel) UpdateGithubUserInfo(uid int64, data map[string]interface{}) (err error) {
 	if uid <= 0 {
 		return fmt.Errorf("invalid Github user id")
@@ -71,7 +71,7 @@ func (m *GithubUserModel) UpdateGithubUserInfo(uid int64, data map[string]interf
 	return
 }
 
-//查
+// 查
 func (m *GithubUserModel) GetGithubUserInfo(uid int64) (uinfo GithubUserInfo, err error) {
 	if uid <= 0 {
 		return
@@ -86,7 +86,7 @@ func (m *GithubUserModel) GetGithubUserInfo(uid int64) (uinfo GithubUserInfo, er
 	return
 }
 
-//提取文章列表，按时间倒序排序
+// 提取文章列表，按时间倒序排序
 func (m *GithubUserModel) GetGithubUserList(cond map[string]interface{}, page, pagesize int) ([]GithubUserInfo, error) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `github_uid` DESC")
 	var ret []GithubUserInfo
@@ -96,13 +96,13 @@ func (m *GithubUserModel) GetGithubUserList(cond map[string]interface{}, page, p
 	return ret, nil
 }
 
-//提取文章总数
+// 提取文章总数
 func (m *GithubUserModel) GetGithubUserTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//格式化文章信息
-func formatGithubUserInfo(row map[string]goUtils.ElemType) (ret GithubUserInfo) {
+// 格式化文章信息
+func formatGithubUserInfo(row map[string]negoutils.ElemType) (ret GithubUserInfo) {
 	ret.GithubUid, _ = row["github_uid"].ToInt64()
 	ret.LoginName = row["login_name"].ToString()
 	ret.AvatarUrl = row["avatar_url"].ToString()

@@ -7,10 +7,10 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
-//管理后台的基本菜单信息
+// 管理后台的基本菜单信息
 type AdminMenuInfo struct {
 	MenuId       int    `json:"menu_id"`        //菜单ID
 	MenuName     string `json:"menu_name"`      //菜单名称
@@ -22,13 +22,13 @@ type AdminMenuInfo struct {
 	MenuSort     int    `json:"menu_sort"`      //菜单在同级中的排序
 }
 
-//管理后台的菜单层级关系
+// 管理后台的菜单层级关系
 type AdminMenuList struct {
 	MenuInfo    AdminMenuInfo   `json:"menuInfo"`    //当前的菜单信息
 	SubMenuList []AdminMenuInfo `json:"subMenuList"` //所有的子菜单列表
 }
 
-//实例化一个m层
+// 实例化一个m层
 func NewAdminMenuModel() *AdminMenuModel {
 	ret := &AdminMenuModel{}
 	ret.Table = "admin_menu"
@@ -39,7 +39,7 @@ type AdminMenuModel struct {
 	BaseModel
 }
 
-//添加一条菜单信息
+// 添加一条菜单信息
 func (m *AdminMenuModel) AddMenuInfo(mInfo AdminMenuInfo) (int, bool, error) {
 	if len(mInfo.MenuName) <= 0 {
 		return 0, false, fmt.Errorf("invalid menu name")
@@ -70,7 +70,7 @@ func (m *AdminMenuModel) AddMenuInfo(mInfo AdminMenuInfo) (int, bool, error) {
 	return int(insertId), b, e
 }
 
-//更新菜单信息
+// 更新菜单信息
 func (m *AdminMenuModel) UpdateMenuInfo(menuId int, data map[string]interface{}) (bool, error) {
 	cond := make(map[string]interface{})
 	cond["menu_id"] = menuId
@@ -78,7 +78,7 @@ func (m *AdminMenuModel) UpdateMenuInfo(menuId int, data map[string]interface{})
 	return b, e
 }
 
-//删除单个菜单
+// 删除单个菜单
 func (m *AdminMenuModel) DeleteMenuInfo(menuId int) (bool, error) {
 	mInfo, err := m.GetAdminMenuInfo(menuId)
 	if err != nil || mInfo.MenuId <= 0 {
@@ -94,7 +94,7 @@ func (m *AdminMenuModel) DeleteMenuInfo(menuId int) (bool, error) {
 	return b, e
 }
 
-//获取菜单信息
+// 获取菜单信息
 func (m *AdminMenuModel) GetAdminMenuInfo(menuId int) (ret AdminMenuInfo, err error) {
 	cond := make(map[string]interface{})
 	cond["menu_id"] = menuId
@@ -106,7 +106,7 @@ func (m *AdminMenuModel) GetAdminMenuInfo(menuId int) (ret AdminMenuInfo, err er
 	return ret, nil
 }
 
-//获取菜单列表
+// 获取菜单列表
 func (m *AdminMenuModel) GetAdminMenuList(cond map[string]interface{}, page int, pagesize int) (ret []AdminMenuInfo) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `menu_sort` DESC,`menu_id` ASC")
 	for _, row := range rows {
@@ -115,12 +115,12 @@ func (m *AdminMenuModel) GetAdminMenuList(cond map[string]interface{}, page int,
 	return ret
 }
 
-//提取总数
+// 提取总数
 func (m *AdminMenuModel) GetAdminMenuTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//更新子菜单数量
+// 更新子菜单数量
 func (m *AdminMenuModel) UpdateMenuChildNum(menuId int) {
 	if menuId <= 0 {
 		return
@@ -137,7 +137,7 @@ func (m *AdminMenuModel) UpdateMenuChildNum(menuId int) {
 	m.UpdateMenuInfo(menuId, data)
 }
 
-//获取所有的菜单列表，供左侧菜单直接用的
+// 获取所有的菜单列表，供左侧菜单直接用的
 func (m *AdminMenuModel) GetAllAdminMenuList() (ret []AdminMenuList) {
 	//先查一级菜单（可直接缓存起来）
 	cond := make(map[string]interface{})
@@ -158,8 +158,8 @@ func (m *AdminMenuModel) GetAllAdminMenuList() (ret []AdminMenuList) {
 	return ret
 }
 
-//格式化菜单信息
-func formatAdminMenuInfo(row map[string]goUtils.ElemType) (ret AdminMenuInfo) {
+// 格式化菜单信息
+func formatAdminMenuInfo(row map[string]negoutils.ElemType) (ret AdminMenuInfo) {
 	if len(row) <= 0 {
 		return
 	}

@@ -5,9 +5,9 @@
  */
 package model
 
-import "github.com/liuyongshuai/goUtils"
+import "github.com/liuyongshuai/negoutils"
 
-//实例化一个m层
+// 实例化一个m层
 func NewArticleTagModel() *ArticleTagModel {
 	ret := &ArticleTagModel{}
 	ret.Table = "article_tag"
@@ -18,7 +18,7 @@ type ArticleTagModel struct {
 	BaseModel
 }
 
-//更新话题下面的文章数量
+// 更新话题下面的文章数量
 func (m *ArticleTagModel) UpdateTagContentNum(articleId int64, tagId int) {
 	var tagIds []int
 	if tagId > 0 {
@@ -38,7 +38,7 @@ func (m *ArticleTagModel) UpdateTagContentNum(articleId int64, tagId int) {
 	}
 }
 
-//提取文章列表
+// 提取文章列表
 func (m *ArticleTagModel) GetArticleList(tid, page, pagesize int) ([]int64, error) {
 	cond := make(map[string]interface{})
 	cond["tag_id"] = tid
@@ -52,12 +52,12 @@ func (m *ArticleTagModel) GetArticleList(tid, page, pagesize int) ([]int64, erro
 	return ret, nil
 }
 
-//提取文章总数
+// 提取文章总数
 func (m *ArticleTagModel) GetArticleTotal(tid ...interface{}) int64 {
 	cond := make(map[string]interface{})
 	cond["is_publish"] = 1
 	if len(tid) > 0 {
-		td, _ := goUtils.MakeElemType(tid[0]).ToInt()
+		td, _ := negoutils.MakeElemType(tid[0]).ToInt()
 		if td > 0 {
 			cond["tag_id"] = td
 		}

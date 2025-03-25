@@ -11,21 +11,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/configer"
+	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/confutils"
 	"strings"
 )
 
 type GithubOpenApi struct {
-	Conf configer.OauthGithubConf
+	Conf confutils.OauthGithubConf
 }
 
-//初始化各种配置信息
-func (gh *GithubOpenApi) InitConf(conf configer.OauthGithubConf) {
+// 初始化各种配置信息
+func (gh *GithubOpenApi) InitConf(conf confutils.OauthGithubConf) {
 	gh.Conf = conf
 }
 
-//获取要跳到oauth认证的页面地址
+// 获取要跳到oauth认证的页面地址
 func (gh *GithubOpenApi) GetAuthorizeUrl() string {
 	retUrl := "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email,read:user"
 	retUrl = fmt.Sprintf(retUrl, gh.Conf.ClientId, gh.Conf.CallBackUrl)
@@ -36,10 +36,10 @@ type GithubAccessToken struct {
 	AccessToken string `json:"access_token"`
 }
 
-//获取授权过的Access Token
+// 获取授权过的Access Token
 func (gh *GithubOpenApi) GetAccessToken(authCode string) (ret GithubAccessToken, err error) {
 	apiUrl := "https://github.com/login/oauth/access_token"
-	httpReq := goUtils.NewHttpClient(apiUrl, context.Background())
+	httpReq := negoutils.NewHttpClient(apiUrl, context.Background())
 	httpReq.SetUrl(apiUrl)
 	httpReq.AddField("client_id", gh.Conf.ClientId)
 	httpReq.AddField("client_secret", gh.Conf.ClientSecret)
@@ -73,11 +73,11 @@ type ApiGithubUserInfo struct {
 	Desc       string `json:"bio"`
 }
 
-//获取用户信息
+// 获取用户信息
 func (gh *GithubOpenApi) GetUserInfo(token string) (ret ApiGithubUserInfo, rawJson string, err error) {
 	apiUrl := "https://api.github.com/user?access_token=%s"
 	apiUrl = fmt.Sprintf(apiUrl, token)
-	httpReq := goUtils.NewHttpClient(apiUrl, context.Background())
+	httpReq := negoutils.NewHttpClient(apiUrl, context.Background())
 	httpReq.SetUrl(apiUrl)
 	resp, err := httpReq.Get()
 	if err != nil {

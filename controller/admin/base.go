@@ -3,10 +3,8 @@ package admin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/goweb/controller"
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
-	"github.com/liuyongshuai/runtofu/utils"
 	"html/template"
 	"strings"
 	"time"
@@ -15,7 +13,7 @@ import (
 var gPageSize int64 = 30
 
 type AdminBaseController struct {
-	controller.RuntofuController
+	negoutils.RuntofuController
 	UserInfo model.AdminUserInfo //登录后的用户的信息
 }
 
@@ -27,7 +25,7 @@ func (c *AdminBaseController) Prepare() error {
 	return nil
 }
 
-//校验是否登录
+// 校验是否登录
 func (c *AdminBaseController) CheckLogin(mustLogin bool, errFn func()) (ret model.AdminUserInfo) {
 	c.TplData["userInfo"] = ret
 
@@ -45,9 +43,9 @@ func (c *AdminBaseController) CheckLogin(mustLogin bool, errFn func()) (ret mode
 	if cookieLen > 48 {
 		//前面16位随机数 + uid的base62 + 前面两项的md5值。别问为啥这么做，就是特么的感觉牛X些
 		tmp := cookieVal[:cookieLen-32]
-		uid = goUtils.Base62Decode(tmp[16:])
+		uid = negoutils.Base62Decode(tmp[16:])
 		md5 := cookieVal[cookieLen-32:]
-		if md5 != strings.ToUpper(goUtils.MD5(tmp)) && mustLogin {
+		if md5 != strings.ToUpper(negoutils.MD5(tmp)) && mustLogin {
 			uid = 0
 			fmt.Println("[checkLogin]校验cookie失败，md5对不上")
 			errFn()
@@ -119,7 +117,7 @@ func (c *AdminBaseController) CheckLogin(mustLogin bool, errFn func()) (ret mode
 	return
 }
 
-//退出登录信息
+// 退出登录信息
 func (c *AdminBaseController) Logout(uid int64) {
 	//先清理cookie信息
 	c.Ctx.Output.AddCookie(model.CookieKey, "", -1, "/")
@@ -132,15 +130,15 @@ func (c *AdminBaseController) Logout(uid int64) {
 	rconn.Do("del", rkey)
 }
 
-//分页
+// 分页
 func (c *AdminBaseController) getPagination(totalNum int64) template.HTML {
 	reqUrl := c.Ctx.Request.URL
 	rawQuery := reqUrl.RawQuery
 	curPath := reqUrl.Path
-	return utils.Pagination(curPath, rawQuery, totalNum, gPageSize, "page")
+	return negoutils.Pagination(curPath, rawQuery, totalNum, gPageSize, "page")
 }
 
-//设置左侧的菜单栏
+// 设置左侧的菜单栏
 func (c *AdminBaseController) SetLeftMenu() {
 	if _, ok := c.TplData["leftMenuList"]; ok {
 		return

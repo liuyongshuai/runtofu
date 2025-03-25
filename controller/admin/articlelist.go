@@ -6,15 +6,15 @@
 package admin
 
 import (
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
-	"github.com/liuyongshuai/runtofu/utils"
 )
 
 type ArticleListController struct {
 	AdminBaseController
 }
 
-//校验是否登录
+// 校验是否登录
 func (bc *ArticleListController) Run() {
 	bc.TplName = "articlelist.tpl"
 	//接收两个参数
@@ -23,8 +23,8 @@ func (bc *ArticleListController) Run() {
 	is_rec, _ := bc.GetParam("is_rec", -1).ToInt()
 	sctime := bc.GetParam("sctime", "").ToString()
 	ectime := bc.GetParam("ectime", "").ToString()
-	st := utils.StrToTime(sctime)
-	et := utils.StrToTime(ectime)
+	st := negoutils.StrToTimestamp(sctime)
+	et := negoutils.StrToTimestamp(ectime)
 
 	cond := make(map[string]interface{})
 	if is_publish >= 0 {

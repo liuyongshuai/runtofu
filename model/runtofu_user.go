@@ -8,7 +8,7 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
 type RuntofuUserInfo struct {
@@ -20,7 +20,7 @@ type RuntofuUserInfo struct {
 	ThirdUid   string `json:"third_uid"`   //第三方的用户ID
 }
 
-//实例化一个m层
+// 实例化一个m层
 func NewRuntofuUserModel() *RuntofuUserModel {
 	ret := &RuntofuUserModel{}
 	ret.Table = "runtofu_user"
@@ -31,7 +31,7 @@ type RuntofuUserModel struct {
 	BaseModel
 }
 
-//增
+// 增
 func (m *RuntofuUserModel) AddRuntofuUserInfo(uinfo RuntofuUserInfo) (err error) {
 	if uinfo.Uid <= 0 {
 		return errors.New("invalid Runtofu uid")
@@ -50,7 +50,7 @@ func (m *RuntofuUserModel) AddRuntofuUserInfo(uinfo RuntofuUserInfo) (err error)
 	return nil
 }
 
-//改
+// 改
 func (m *RuntofuUserModel) UpdateRuntofuUserInfo(uid int64, data map[string]interface{}) (err error) {
 	if uid <= 0 {
 		return fmt.Errorf("invalid runtofu user id")
@@ -68,7 +68,7 @@ func (m *RuntofuUserModel) UpdateRuntofuUserInfo(uid int64, data map[string]inte
 	return
 }
 
-//查
+// 查
 func (m *RuntofuUserModel) GetRuntofuUserInfo(uid int64) (uinfo RuntofuUserInfo, err error) {
 	if uid <= 0 {
 		return
@@ -83,7 +83,7 @@ func (m *RuntofuUserModel) GetRuntofuUserInfo(uid int64) (uinfo RuntofuUserInfo,
 	return
 }
 
-//提取文章列表，按时间倒序排序
+// 提取文章列表，按时间倒序排序
 func (m *RuntofuUserModel) GetRuntofuUserList(cond map[string]interface{}, page, pagesize int) ([]RuntofuUserInfo, error) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `uid` DESC")
 	var ret []RuntofuUserInfo
@@ -93,13 +93,13 @@ func (m *RuntofuUserModel) GetRuntofuUserList(cond map[string]interface{}, page,
 	return ret, nil
 }
 
-//提取文章总数
+// 提取文章总数
 func (m *RuntofuUserModel) GetRuntofuUserTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//格式化文章信息
-func formatRuntofuUserInfo(row map[string]goUtils.ElemType) (ret RuntofuUserInfo) {
+// 格式化文章信息
+func formatRuntofuUserInfo(row map[string]negoutils.ElemType) (ret RuntofuUserInfo) {
 	ret.Uid, _ = row["uid"].ToInt64()
 	ret.Name = row["name"].ToString()
 	ret.Portrait = row["portrait"].ToString()

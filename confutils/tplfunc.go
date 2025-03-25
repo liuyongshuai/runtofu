@@ -5,12 +5,8 @@
 package confutils
 
 import (
-	"fmt"
 	"github.com/liuyongshuai/negoutils"
 	"html/template"
-	"regexp"
-	"strings"
-	"time"
 )
 
 var TplFuncs template.FuncMap

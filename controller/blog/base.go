@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/goweb/controller"
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
-	"github.com/liuyongshuai/runtofu/utils"
 	"html/template"
 	"strings"
 	"time"
@@ -16,17 +14,17 @@ import (
 var gPageSize int64 = 20
 
 type RunToFuBaseController struct {
-	controller.RuntofuController
+	negoutils.RuntofuController
 }
 
-//获取已登录的用户信息
+// 获取已登录的用户信息
 func (c *RunToFuBaseController) Prepare() error {
 	runtofuUInfo := c.GetLoginUserInfo()
 	c.AddTplData("runtofuUserInfo", runtofuUInfo)
 	return nil
 }
 
-//获取登录的用户信息，如果有的话
+// 获取登录的用户信息，如果有的话
 func (c *RunToFuBaseController) GetLoginUserInfo() (runtofuUserInfo model.RuntofuUserInfo) {
 	//提取cookie里的相关值，它是有一定长度的
 	cookieVal := c.Ctx.Input.GetCookie(model.BlogCookieKey)
@@ -42,9 +40,9 @@ func (c *RunToFuBaseController) GetLoginUserInfo() (runtofuUserInfo model.Runtof
 
 	//前面16位随机数 + uid的base62 + 前面两项的md5值。别问为啥这么做，就是特么的感觉牛X些
 	tmp := cookieVal[:cookieLen-32]
-	runtofuUid = goUtils.Base62Decode(tmp[16:])
+	runtofuUid = negoutils.Base62Decode(tmp[16:])
 	md5 := cookieVal[cookieLen-32:]
-	if md5 != strings.ToUpper(goUtils.MD5(tmp)) || runtofuUid <= 0 {
+	if md5 != strings.ToUpper(negoutils.MD5(tmp)) || runtofuUid <= 0 {
 		fmt.Println("md5=", cookieLen, "\truntofuUid=", runtofuUid)
 		return
 	}
@@ -97,7 +95,7 @@ func (c *RunToFuBaseController) GetLoginUserInfo() (runtofuUserInfo model.Runtof
 	return
 }
 
-//专门渲染文章列表及右边的话题信息
+// 专门渲染文章列表及右边的话题信息
 func (c *RunToFuBaseController) articleListAndTags(articleList []model.ArticleInfo, totalNum int64) (template.HTML, error) {
 	data := make(map[interface{}]interface{})
 	tagList, _ := model.MTag.GetTagList(1, 50)
@@ -114,10 +112,10 @@ func (c *RunToFuBaseController) articleListAndTags(articleList []model.ArticleIn
 	return template.HTML(bufstr), err
 }
 
-//分页
+// 分页
 func (c *RunToFuBaseController) getPagination(totalNum int64) template.HTML {
 	reqUrl := c.Ctx.Request.URL
 	rawQuery := reqUrl.RawQuery
 	curPath := reqUrl.Path
-	return utils.Pagination(curPath, rawQuery, totalNum, gPageSize, "page")
+	return negoutils.Pagination(curPath, rawQuery, totalNum, gPageSize, "page")
 }

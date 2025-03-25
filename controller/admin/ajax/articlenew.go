@@ -6,7 +6,7 @@
 package ajax
 
 import (
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 )
@@ -15,7 +15,7 @@ type AdminAjaxArticleNewController struct {
 	AdminAjaxBaseController
 }
 
-//返回数据信息
+// 返回数据信息
 func (bc *AdminAjaxArticleNewController) Run() {
 	title := bc.GetParam("title", "").ToString()
 	tags := bc.GetParam("tags", "").ToString()
@@ -23,7 +23,7 @@ func (bc *AdminAjaxArticleNewController) Run() {
 	tmp := strings.Split(tags, ",")
 	var tids []int
 	for _, t := range tmp {
-		td, _ := goUtils.MakeElemType(t).ToInt()
+		td, _ := negoutils.MakeElemType(t).ToInt()
 		tids = append(tids, td)
 	}
 	isOri := false

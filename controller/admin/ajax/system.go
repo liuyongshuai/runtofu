@@ -9,8 +9,8 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/configer"
+	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/confutils"
 	"github.com/liuyongshuai/runtofu/model"
 	"strings"
 	"time"
@@ -20,7 +20,7 @@ type AdminAjaxSystemController struct {
 	AdminAjaxBaseController
 }
 
-//返回数据信息
+// 返回数据信息
 func (bc *AdminAjaxSystemController) Run() {
 	action := bc.GetParam("action", "").ToString()
 	fn := make(map[string]func())
@@ -37,7 +37,7 @@ func (bc *AdminAjaxSystemController) Run() {
 	}
 }
 
-//删除菜单操作
+// 删除菜单操作
 func (bc *AdminAjaxSystemController) delMenu() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
 	_, e := model.MAdminMenu.DeleteMenuInfo(menuId)
@@ -48,7 +48,7 @@ func (bc *AdminAjaxSystemController) delMenu() {
 	}
 }
 
-//获取菜单详细信息
+// 获取菜单详细信息
 func (bc *AdminAjaxSystemController) getMenuInfo() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
 	mInfo, err := model.MAdminMenu.GetAdminMenuInfo(menuId)
@@ -63,7 +63,7 @@ func (bc *AdminAjaxSystemController) getMenuInfo() {
 	bc.Notice(nil)
 }
 
-//获取菜单详细信息
+// 获取菜单详细信息
 func (bc *AdminAjaxSystemController) modifyMenuInfo() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
 	name := bc.GetParam("name", "").ToString()
@@ -116,7 +116,7 @@ func (bc *AdminAjaxSystemController) modifyMenuInfo() {
 	}
 }
 
-//上调菜单顺序
+// 上调菜单顺序
 func (bc *AdminAjaxSystemController) upMenu() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
 	menuInfo, err := model.MAdminMenu.GetAdminMenuInfo(menuId)
@@ -156,7 +156,7 @@ func (bc *AdminAjaxSystemController) upMenu() {
 	bc.Notice(nil)
 }
 
-//下调菜单顺序
+// 下调菜单顺序
 func (bc *AdminAjaxSystemController) downMenu() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
 	menuInfo, err := model.MAdminMenu.GetAdminMenuInfo(menuId)
@@ -196,14 +196,14 @@ func (bc *AdminAjaxSystemController) downMenu() {
 	bc.Notice(nil)
 }
 
-//editor.md要求返回的数据格式
+// editor.md要求返回的数据格式
 type UpImgResp struct {
 	Success int64  `json:"success"`
 	Message string `json:"message"`
 	Url     string `json:"url"`
 }
 
-//上传图片信息
+// 上传图片信息
 func (bc *AdminAjaxSystemController) uploadImage() {
 	allImageExt := []string{"jpg", "jpeg", "gif", "png", "bmp", "PNG", "JPG", "JPEG", "GIF"}
 	resp := UpImgResp{Success: 1}
@@ -286,7 +286,7 @@ func (bc *AdminAjaxSystemController) uploadImage() {
 		bc.RenderJson(resp)
 		return
 	}
-	md5 := goUtils.MD5(string(data))
+	md5 := negoutils.MD5(string(data))
 	key := md5 + ext
 	fp.Seek(0, 0)
 	rder := bufio.NewReader(fp)
@@ -301,6 +301,6 @@ func (bc *AdminAjaxSystemController) uploadImage() {
 		return
 	}
 	resp.Success = 1
-	resp.Url = configer.GetConfiger().Common.ImagePrefix + "/" + key
+	resp.Url = confutils.GetConfiger().Common.ImagePrefix + "/" + key
 	bc.RenderJson(resp)
 }

@@ -7,17 +7,17 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
-//实例化一个m层
+// 实例化一个m层
 func NewTagModel() *TagModel {
 	ret := &TagModel{}
 	ret.Table = "tag"
 	return ret
 }
 
-//标签（分类）信息
+// 标签（分类）信息
 type TagInfo struct {
 	TagId      int    `json:"tag_id"`      //标签ID
 	TagName    string `json:"tag_name"`    //标签名称
@@ -28,7 +28,7 @@ type TagModel struct {
 	BaseModel
 }
 
-//添加一个话题信息
+// 添加一个话题信息
 func (m *TagModel) AddTagInfo(name string) (int, bool, error) {
 	if len(name) <= 0 {
 		return 0, false, fmt.Errorf("invalid tag name")
@@ -39,7 +39,7 @@ func (m *TagModel) AddTagInfo(name string) (int, bool, error) {
 	return int(i), b, e
 }
 
-//删除一个话题信息
+// 删除一个话题信息
 func (m *TagModel) DeleteTagInfo(tid int) (bool, error) {
 	if tid <= 0 {
 		return false, fmt.Errorf("invalid tag id")
@@ -54,7 +54,7 @@ func (m *TagModel) DeleteTagInfo(tid int) (bool, error) {
 	return r, e
 }
 
-//更新话题信息
+// 更新话题信息
 func (m *TagModel) UpdateTagInfo(tid int, data map[string]interface{}) (bool, error) {
 	if tid <= 0 {
 		return false, fmt.Errorf("invalid tag id")
@@ -68,7 +68,7 @@ func (m *TagModel) UpdateTagInfo(tid int, data map[string]interface{}) (bool, er
 	return true, nil
 }
 
-//提取单个话题信息
+// 提取单个话题信息
 func (m *TagModel) GetTagInfo(tid int) (TagInfo, error) {
 	tinfo := TagInfo{}
 	if tid <= 0 {
@@ -84,7 +84,7 @@ func (m *TagModel) GetTagInfo(tid int) (TagInfo, error) {
 	return tinfo, nil
 }
 
-//提取批量话题信息
+// 提取批量话题信息
 func (m *TagModel) GetTagInfos(tids []int) (map[int]TagInfo, error) {
 	ret := make(map[int]TagInfo)
 	if len(tids) <= 0 {
@@ -100,7 +100,7 @@ func (m *TagModel) GetTagInfos(tids []int) (map[int]TagInfo, error) {
 	return ret, nil
 }
 
-//提取批量话题信息，按内容数量排序
+// 提取批量话题信息，按内容数量排序
 func (m *TagModel) GetTagList(page int, pagesize int) ([]TagInfo, error) {
 	cond := make(map[string]interface{})
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `content_num` DESC")
@@ -111,7 +111,7 @@ func (m *TagModel) GetTagList(page int, pagesize int) ([]TagInfo, error) {
 	return ret, nil
 }
 
-//提取所有的话题ID
+// 提取所有的话题ID
 func (m *TagModel) GetAllTagIds() (ret []int) {
 	cond := make(map[string]interface{})
 	resp, err := mDB.FetchCondRows(m.Table, cond, "tag_id")
@@ -127,21 +127,21 @@ func (m *TagModel) GetAllTagIds() (ret []int) {
 	return
 }
 
-//提取总数
+// 提取总数
 func (m *TagModel) GetTagTotal() int64 {
 	cond := make(map[string]interface{})
 	return m.FetchTotal(cond)
 }
 
-//更新话题下的内容数量
+// 更新话题下的内容数量
 func (m *TagModel) UpdateTagContentNum(tid, cnum int) {
 	data := make(map[string]interface{})
 	data["content_num"] = cnum
 	m.UpdateTagInfo(tid, data)
 }
 
-//格式化话题信息
-func formatTagInfo(row map[string]goUtils.ElemType) TagInfo {
+// 格式化话题信息
+func formatTagInfo(row map[string]negoutils.ElemType) TagInfo {
 	tinfo := TagInfo{}
 	tinfo.TagId, _ = row["tag_id"].ToInt()
 	tinfo.TagName = row["tag_name"].ToString()

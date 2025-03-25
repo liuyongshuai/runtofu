@@ -10,8 +10,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/kr/pretty"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/configer"
+	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/confutils"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -23,12 +23,12 @@ func init() {
 	flag.Parse()
 
 	// 解析配置。
-	if err := configer.GetConfiger().Init(configPath); err != nil {
+	if err := confutils.GetConfiger().Init(configPath); err != nil {
 		fmt.Printf("fail to read config.||err=%v||config=%v", err, configPath)
 		os.Exit(1)
 		return
 	}
-	conf := configer.GetConfiger()
+	conf := confutils.GetConfiger()
 	fmt.Printf("%# v\n", pretty.Formatter(conf))
 
 	//初始化model层
@@ -39,7 +39,7 @@ func init() {
 	}
 }
 
-//测试
+// 测试
 func TestAliyunOSS(t *testing.T) {
 	img := "/root/timg.jpeg"
 	data, err := ioutil.ReadFile(img)
@@ -47,7 +47,7 @@ func TestAliyunOSS(t *testing.T) {
 		panic(err)
 	}
 	content := string(data)
-	md5 := goUtils.MD5(content)
+	md5 := negoutils.MD5(content)
 	rder := new(bytes.Buffer)
 	rder.Write(data)
 	err = AliyunOSSBucket.PutObject(md5+".jpg", rder)

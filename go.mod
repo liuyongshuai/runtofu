@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/kr/pretty v0.3.1
 	github.com/liuyongshuai/negoutils v0.0.0-20250325030747-fd11f7840f37
+	github.com/aliyun/aliyun-oss-go-sdk v3.0.2
 )
 
 require (

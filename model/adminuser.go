@@ -7,7 +7,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/goUtils"
+	"github.com/liuyongshuai/negoutils"
 )
 
 const (
@@ -24,14 +24,14 @@ type AdminUserInfo struct {
 	Passcode  string //生成密码的code
 }
 
-//实例化一个m层
+// 实例化一个m层
 func NewAdminUserModel() *AdminUserModel {
 	ret := &AdminUserModel{}
 	ret.Table = "admin_user"
 	return ret
 }
 
-//管理后台的cookie信息
+// 管理后台的cookie信息
 type AdminCookieInfo struct {
 	Uid       int64  `json:"uid"`        //用户ID
 	CookieVal string `json:"cookie_val"` //设置的cookie信息字段值
@@ -42,7 +42,7 @@ type AdminUserModel struct {
 	BaseModel
 }
 
-//根据登录名称获取用户信息
+// 根据登录名称获取用户信息
 func (m *AdminUserModel) GetAdminUserInfoByLoginName(loginName string) (ret AdminUserInfo) {
 	cond := make(map[string]interface{})
 	cond["login_name"] = loginName
@@ -54,7 +54,7 @@ func (m *AdminUserModel) GetAdminUserInfoByLoginName(loginName string) (ret Admi
 	return ret
 }
 
-//提取用户信息
+// 提取用户信息
 func (m *AdminUserModel) GetAdminUserInfoByUid(uid int64) (ret AdminUserInfo) {
 	cond := make(map[string]interface{})
 	cond["uid"] = uid
@@ -66,7 +66,7 @@ func (m *AdminUserModel) GetAdminUserInfoByUid(uid int64) (ret AdminUserInfo) {
 	return ret
 }
 
-//提取用户信息
+// 提取用户信息
 func (m *AdminUserModel) GetAdminUserList(cond map[string]interface{}, page int, pagesize int) (ret []AdminUserInfo) {
 	rows := m.FetchList(cond, page, pagesize, "ORDER BY `uid` ASC")
 	for _, row := range rows {
@@ -75,12 +75,12 @@ func (m *AdminUserModel) GetAdminUserList(cond map[string]interface{}, page int,
 	return ret
 }
 
-//获取用户总数
+// 获取用户总数
 func (m *AdminUserModel) GetAdminUserTotal(cond map[string]interface{}) int64 {
 	return m.FetchTotal(cond)
 }
 
-//更新用户信息
+// 更新用户信息
 func (m *AdminUserModel) UpdateAdminUserInfo(uid int64, data map[string]interface{}) (bool, error) {
 	if uid <= 0 {
 		return false, fmt.Errorf("invalid uid")
@@ -91,13 +91,13 @@ func (m *AdminUserModel) UpdateAdminUserInfo(uid int64, data map[string]interfac
 	return b, e
 }
 
-//添加管理后台用户
+// 添加管理后台用户
 func (m *AdminUserModel) AddAdminUserInfo(lname, rname, passwd string) (int64, error) {
-	passcode := goUtils.RandomStr(16)
+	passcode := negoutils.RandomStr(16)
 	isql := fmt.Sprintf("SELECT MAX(`uid`) FROM `%s`", m.Table)
 	tmp, _ := mDB.FetchOne(isql)
 	maxUid, _ := tmp.ToInt()
-	passwd = goUtils.MD5(passwd + passcode)
+	passwd = negoutils.MD5(passwd + passcode)
 	data := make(map[string]interface{})
 	if maxUid <= 0 {
 		maxUid = 10000
@@ -121,7 +121,7 @@ func (m *AdminUserModel) AddAdminUserInfo(lname, rname, passwd string) (int64, e
 	return 0, fmt.Errorf("insert admin user info failed")
 }
 
-//修改密码
+// 修改密码
 func (m *AdminUserModel) ChangePasswd(uid int64, oldPasswd, newPasswd string) (bool, error) {
 	uinfo := m.GetAdminUserInfoByUid(uid)
 	if uinfo.Uid <= 0 {
@@ -130,19 +130,19 @@ func (m *AdminUserModel) ChangePasswd(uid int64, oldPasswd, newPasswd string) (b
 	if oldPasswd == newPasswd {
 		return false, fmt.Errorf("新密码不能跟原密码相同")
 	}
-	dbPasswd := goUtils.MD5(oldPasswd + uinfo.Passcode)
+	dbPasswd := negoutils.MD5(oldPasswd + uinfo.Passcode)
 	if dbPasswd != uinfo.Passwd {
 		return false, fmt.Errorf("原密码校验失败")
 	}
 	data := make(map[string]interface{})
-	newPasscode := goUtils.RandomStr(16)
-	data["passwd"] = goUtils.MD5(newPasswd + newPasscode)
+	newPasscode := negoutils.RandomStr(16)
+	data["passwd"] = negoutils.MD5(newPasswd + newPasscode)
 	data["passcode"] = newPasscode
 	return m.UpdateAdminUserInfo(uid, data)
 }
 
-//格式化用户信息
-func formatAdminUserInfo(row map[string]goUtils.ElemType) (ret AdminUserInfo) {
+// 格式化用户信息
+func formatAdminUserInfo(row map[string]negoutils.ElemType) (ret AdminUserInfo) {
 	if len(row) <= 0 {
 		return
 	}

@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/garyburd/redigo/redis"
-	"github.com/liuyongshuai/goUtils"
-	"github.com/liuyongshuai/runtofu/configer"
+	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/confutils"
 	"github.com/liuyongshuai/runtofu/model/openapi"
 )
 
@@ -22,11 +22,11 @@ const (
 	BLOG_SESSION_PREFIX = "blog_session_%d"
 )
 
-//设置的cookie的key默认值
+// 设置的cookie的key默认值
 var CookieKey = "rtf"
 var BlogCookieKey = "f" + CookieKey
 
-//模型层的实例化
+// 模型层的实例化
 var MAdminUser = NewAdminUserModel()
 var MAdminMenu = NewAdminMenuModel()
 var MArticle = NewArticleModel()
@@ -40,27 +40,27 @@ var MWeiboUser = NewWeiboUserModel()
 var MGithubApi = new(openapi.GithubOpenApi)
 var MGithubUser = NewGithubUserModel()
 
-var mConf = goUtils.MakeMySQLConf()
+var mConf = negoutils.MakeMySQLConf()
 var mSystemMenuList AdminMenuList
 
-//mysql连接
-var mDB *goUtils.DBase
+// mysql连接
+var mDB *negoutils.DBase
 
-//redis连接池
+// redis连接池
 var RedisPool *redis.Pool
 
-//aliyun
+// aliyun
 var AliyunOSSBucket oss.Bucket
 
-//ID生成器
-var MSnowFlake, _ = goUtils.NewIDGenerator().
+// ID生成器
+var MSnowFlake, _ = negoutils.NewIDGenerator().
 	SetTimeBitSize(48).
 	SetWorkerIdBitSize(3).
 	SetSequenceBitSize(12).
 	SetWorkerId(1).
 	Init()
 
-func Init(conf *configer.RuntofuConfig) error {
+func Init(conf *confutils.RuntofuConfig) error {
 	if len(conf.Common.CookieKey) > 0 {
 		CookieKey = conf.Common.CookieKey
 	}
@@ -75,7 +75,7 @@ func Init(conf *configer.RuntofuConfig) error {
 	mConf.User = conf.MySQL.User
 	mConf.Port = conf.MySQL.Port
 	mConf.AutoCommit = true
-	mDB = goUtils.NewDBase(mConf)
+	mDB = negoutils.NewDBase(mConf)
 	mDB.Conn()
 	_, err = mDB.Conn()
 	if err != nil {
