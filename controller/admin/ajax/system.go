@@ -8,7 +8,7 @@ package ajax
 import (
 	"bufio"
 	"fmt"
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/liuyongshuai/aliyun-oss-go-sdk"
 	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/confutils"
 	"github.com/liuyongshuai/runtofu/model"

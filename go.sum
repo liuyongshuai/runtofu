@@ -18,6 +18,7 @@ github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
+github.com/liuyongshuai/aliyun-oss-go-sdk v1.0.0/go.mod h1:wee/24K1VWGWPoYD3dft9GmzH5gj92VOSWu9O+Pi7EU=
 github.com/liuyongshuai/negoutils v0.0.0-20250325030747-fd11f7840f37 h1:Q+LNMi/ucHAV4cuUqvytk6l/ZCZR5F7GGk+7X7n8AO0=
 github.com/liuyongshuai/negoutils v0.0.0-20250325030747-fd11f7840f37/go.mod h1:JM0yiV44EGFTVJf8ed1nAx5B9HH/cmSA2Kxxib2PJQU=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=
