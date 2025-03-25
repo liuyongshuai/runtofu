@@ -30,3 +30,4 @@ core*
 *.cmake
 *_bin
 *.conf
+vendor
