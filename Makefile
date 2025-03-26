@@ -24,11 +24,8 @@ export GOBIN=$(BUILD_ROOT)/bin
 .DEFAULT: all
 all: build
 
-build: clean prepare fmt
+build: clean prepare
 	cd "$(BUILD_DIR)" && go build -o "$(OUTPUT)/bin/$(APP)" "$(BUILD_DIR)$(SUB_PACKAGE)/main.go"
-
-fmt:
-	go fmt $$(glide novendor)
 
 clean:
 	for i in $(OUTPUT_DIRS); do rm -rf "$(OUTPUT)/$$i"; done
@@ -57,5 +54,5 @@ glide-i: glide-install
 glide-install:
 	glide install
 
-.PHONY: all build fmt clean prepare run init glide-up glide-update glide-i glide-install
+.PHONY: all build clean prepare run init glide-up glide-update glide-i glide-install
 $(VERBOSE).SILENT:
