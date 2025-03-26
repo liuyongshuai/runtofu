@@ -22,6 +22,9 @@ func init() {
 	TplFuncs["editor_css"] = StaticEditorMdCSS
 	TplFuncs["ftime"] = negoutils.FormatCTime
 	TplFuncs["strtotime"] = negoutils.StrToTimestamp
+	for k, v := range negoutils.CommonTplFuncs {
+		TplFuncs[k] = v
+	}
 }
 
 // 插入js引入文件标签，js形如“base.js”
