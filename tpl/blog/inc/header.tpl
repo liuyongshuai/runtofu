@@ -16,6 +16,8 @@
     <meta property="wb:webmaster" content="a97aa556624c7a14" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>var STATIC_PREFIX = "{{.STATIC_PREFIX}}";</script>
+    <script src="/Users/liuyongshuai/mycode/liuyongshuai/runtofu/static/js/base.js"></script>
+    <link type="text/css" rel="stylesheet" href="/Users/liuyongshuai/mycode/liuyongshuai/runtofu/static/css/base.css" />
     {{ static_js  "base.js" }}
     {{ static_css  "base.css" }}
     {{ static_css  "runtofu.css" }}
