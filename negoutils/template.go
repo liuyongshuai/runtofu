@@ -63,6 +63,7 @@ func (tb *TplBuilder) initTplBuilder() error {
 		return fmt.Errorf("connt find tpl files")
 	}
 	for k, fn := range CommonTplFuncs {
+		fmt.Println("CommonTplFuncs", k, fn)
 		tb.TplFuncMap[k] = fn
 	}
 	for k, v := range tb.TplNameMap {
@@ -135,6 +136,9 @@ func (tb *TplBuilder) ExecuteTpl(wr io.Writer, name string, data interface{}) er
 	if err != nil {
 		fmt.Println("getTplRelated:", err)
 		return err
+	}
+	for k, v := range tb.TplFuncMap {
+		fmt.Println("ExecuteTpl", k, v)
 	}
 	t := template.New(name).Funcs(tb.TplFuncMap)
 	for tplName, tplFile := range relatedFiles {
