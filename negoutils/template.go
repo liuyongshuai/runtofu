@@ -48,7 +48,6 @@ func (tb *TplBuilder) initTplBuilder() error {
 	if tb.isHaveInit {
 		return nil
 	}
-	fmt.Println("start initTplBuilder........")
 	tb.lock.Lock()
 	defer tb.lock.Unlock()
 	if len(tb.TplNameMap) <= 0 {
@@ -63,11 +62,7 @@ func (tb *TplBuilder) initTplBuilder() error {
 		return fmt.Errorf("connt find tpl files")
 	}
 	for k, fn := range CommonTplFuncs {
-		fmt.Println("CommonTplFuncs", k, fn)
 		tb.TplFuncMap[k] = fn
-	}
-	for k, v := range tb.TplNameMap {
-		fmt.Println(k, v)
 	}
 	tb.isHaveInit = true
 	return nil
@@ -137,9 +132,7 @@ func (tb *TplBuilder) ExecuteTpl(wr io.Writer, name string, data interface{}) er
 		fmt.Println("getTplRelated:", err)
 		return err
 	}
-	for k, v := range tb.TplFuncMap {
-		fmt.Println("ExecuteTpl", k, v)
-	}
+
 	t := template.New(name).Funcs(tb.TplFuncMap)
 	for tplName, tplFile := range relatedFiles {
 		t, err = t.ParseFiles(tplFile)
@@ -178,7 +171,6 @@ func (tb *TplBuilder) getAllTplFiles(tplDir ...string) error {
 		if !strings.HasSuffix(tplFile, tb.TplExt) {
 			continue
 		}
-		fmt.Println("fint TPL:\t", tplFile)
 		err := tb.parseTpl(tplFile)
 		if err != nil {
 			return err
@@ -189,7 +181,6 @@ func (tb *TplBuilder) getAllTplFiles(tplDir ...string) error {
 
 // 解析模板
 func (tb *TplBuilder) parseTpl(tplFile string) error {
-	fmt.Println("parseTpl", tplFile)
 	tn := tb.formatTplName(tplFile)
 	//将模板的内容完全读出来
 	data, err := ioutil.ReadFile(tplFile)
@@ -206,7 +197,6 @@ func (tb *TplBuilder) parseTpl(tplFile string) error {
 	if tmpTpl, ok := tb.TplNameMap[tn]; ok {
 		return fmt.Errorf("duplicate template name %s for %s and %s", tn, tmpTpl, tplFile)
 	}
-	fmt.Println("find template [" + tn + "] " + tplFile)
 	tb.TplNameMap[tn] = tplFile
 	return nil
 }
@@ -251,6 +241,5 @@ func (tb *TplBuilder) formatTplName(tname string) string {
 		tname = strings.TrimLeft(tname, "/")
 	}
 	tname = strings.TrimLeft(tname, pathSep)
-	fmt.Println("formatTplName=", tname)
 	return tname
 }
