@@ -7,8 +7,8 @@ package ajax
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/controller/blog"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"net/http"
 )
 

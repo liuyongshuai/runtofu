@@ -7,7 +7,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/negoutils"
 )
 
 // 管理后台的基本菜单信息

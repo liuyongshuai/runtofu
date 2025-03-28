@@ -11,8 +11,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/confutils"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"strings"
 )
 

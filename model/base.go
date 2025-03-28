@@ -7,7 +7,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/negoutils"
 )
 
 // 通过开放平台登录的cookie信息

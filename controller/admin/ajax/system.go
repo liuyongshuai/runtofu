@@ -9,9 +9,9 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/liuyongshuai/aliyun-oss-go-sdk"
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/confutils"
 	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"strings"
 	"time"
 )

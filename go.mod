@@ -9,7 +9,6 @@ require (
 	github.com/garyburd/redigo v1.6.4
 	github.com/kr/pretty v0.3.1
 	github.com/liuyongshuai/aliyun-oss-go-sdk v1.0.0
-	github.com/liuyongshuai/negoutils v0.0.2
 )
 
 require (

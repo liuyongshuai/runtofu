@@ -5,7 +5,7 @@
  */
 package model
 
-import "github.com/liuyongshuai/negoutils"
+import "github.com/liuyongshuai/runtofu/negoutils"
 
 // 实例化一个m层
 func NewArticleTagModel() *ArticleTagModel {

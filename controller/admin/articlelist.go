@@ -6,8 +6,8 @@
 package admin
 
 import (
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/negoutils"
 )
 
 type ArticleListController struct {

@@ -5,7 +5,7 @@
 package confutils
 
 import (
-	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"html/template"
 )
 

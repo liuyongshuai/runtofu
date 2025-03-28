@@ -7,7 +7,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/liuyongshuai/negoutils"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"strings"
 	"time"
 )

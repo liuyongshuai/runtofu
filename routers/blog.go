@@ -6,10 +6,10 @@
 package routers
 
 import (
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/controller/blog"
 	"github.com/liuyongshuai/runtofu/controller/blog/ajax"
 	"github.com/liuyongshuai/runtofu/controller/blog/oauth"
+	"github.com/liuyongshuai/runtofu/negoutils"
 )
 
 var BlogRouterList []*negoutils.RuntofuRouterItem

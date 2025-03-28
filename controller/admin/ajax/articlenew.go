@@ -6,8 +6,8 @@
 package ajax
 
 import (
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/model"
+	"github.com/liuyongshuai/runtofu/negoutils"
 	"strings"
 )
 

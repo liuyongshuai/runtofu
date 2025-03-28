@@ -6,10 +6,10 @@
 package routers
 
 import (
-	"github.com/liuyongshuai/negoutils"
 	"github.com/liuyongshuai/runtofu/controller/admin"
 	"github.com/liuyongshuai/runtofu/controller/admin/ajax"
 	"github.com/liuyongshuai/runtofu/controller/admin/system"
+	"github.com/liuyongshuai/runtofu/negoutils"
 )
 
 var AdminRouterList []*negoutils.RuntofuRouterItem
