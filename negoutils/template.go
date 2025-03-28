@@ -142,12 +142,7 @@ func (tb *TplBuilder) ExecuteTpl(wr io.Writer, name string, data interface{}) er
 	}
 	t := template.New(name).Funcs(tb.TplFuncMap)
 	for tplName, tplFile := range relatedFiles {
-		data, err := ioutil.ReadFile(tplFile)
-		if err != nil {
-			fmt.Println("ReadFile:", err)
-			return err
-		}
-		_, err = t.New(tplName).Parse(string(data))
+		t, err = t.ParseFiles(tplFile)
 		if err != nil {
 			fmt.Println("Parse:", err, "tplName:", tplName, "tplFile", tplFile)
 			return err
