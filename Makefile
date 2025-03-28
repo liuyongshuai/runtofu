@@ -9,10 +9,11 @@ GROUP    := $(shell dirname $(APP_ROOT))
 OUTPUT              = $(CURDIR)/output
 CONF                = $(CURDIR)/conf
 TEMPLATE_DIR        = $(CURDIR)/tpl
+STATIC_DIR        	= $(CURDIR)/static
 
 OUTPUT_LIB_DIR = $(OUTPUT)/lib
 
-OUTPUT_DIRS = conf tpl bin
+OUTPUT_DIRS = conf tpl bin static
 
 BUILD_ROOT   := $(shell git rev-parse --show-toplevel)/build
 BUILD_TARGET = src/$(PACKAGE_ROOT)
@@ -35,6 +36,7 @@ prepare:
 	for i in $(OUTPUT_DIRS); do mkdir -p "$(OUTPUT)/$$i"; done
 	cp -vr "$(CONF)" "$(OUTPUT)"
 	cp -vr "$(TEMPLATE_DIR)" "$(OUTPUT)"
+	cp -vr "$(STATIC_DIR)" "$(OUTPUT)"
 	cp -v "$(CURDIR)/control.sh" "$(OUTPUT)"
 
 run:
