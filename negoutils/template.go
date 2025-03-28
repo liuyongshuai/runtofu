@@ -65,6 +65,9 @@ func (tb *TplBuilder) initTplBuilder() error {
 	for k, fn := range CommonTplFuncs {
 		tb.TplFuncMap[k] = fn
 	}
+	for k, v := range tb.TplNameMap {
+		fmt.Println(k, v)
+	}
 	tb.isHaveInit = true
 	return nil
 }
