@@ -48,11 +48,13 @@ func (tb *TplBuilder) initTplBuilder() error {
 	if tb.isHaveInit {
 		return nil
 	}
+	fmt.Println("start initTplBuilder........")
 	tb.lock.Lock()
 	defer tb.lock.Unlock()
 	if len(tb.TplNameMap) <= 0 {
 		err := tb.getAllTplFiles()
 		if err != nil {
+			fmt.Println("initTplBuilder:", err)
 			return err
 		}
 	}
