@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>{{.SITE_NAME}}</title>
-    <link rel="Shortcut Icon" type="image/x-icon" href="{{static_image "favicon.ico"}}" />
+    <link rel="Shortcut Icon" type="image/x-icon" href="{{ static_image "favicon.ico"}}" />
     <link rel="Bookmark" href="{{ static_image "favicon.ico" }}" />
     <meta name="referrer" content="origin-when-cross-origin" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />

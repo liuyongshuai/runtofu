@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <title>{{.SITE_NAME}}</title>
-    <link rel="Shortcut Icon" href="{{static_image "favicon.ico"}}" type="image/x-icon"/>
-    <link rel="Bookmark" href="{{static_image "favicon.ico"}}"/>
+    <link rel="Shortcut Icon" href="{{ static_image "favicon.ico"}}" type="image/x-icon"/>
+    <link rel="Bookmark" href="{{ static_image "favicon.ico"}}"/>
     <meta name="referrer" content="origin-when-cross-origin">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="author" content="Liu Yongshuai">
