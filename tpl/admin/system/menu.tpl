@@ -157,4 +157,250 @@
         </div>
     </div>
 </div>
+<script>
+$(function () {
+    /***********展示/隐藏给菜单添加用户的十字按钮***********/
+    $("span.glyphicon-plus").parent().mouseover(function () {
+        $(this).find("span.glyphicon-plus").show()
+    }).mouseout(function () {
+        $(this).find("span.glyphicon-plus").hide();
+    });
+    /***********给菜单添加用户***********/
+    $("span.glyphicon-plus").click(function () {
+        var menu_id = parseInt($(this).parents("tr[menu_id]").attr("menu_id"));
+        if (isNaN(menu_id)) {
+            menu_id = 0;
+        }
+        var _this = $(this);
+        _this.popoverEdit({
+            type: "select",
+            selectUrl: "/ajax/system/get_nopriv_userlist?menu_id=" + menu_id,
+            onConfirm: function (input) {
+                var user_name = input.val();
+                poiUtils.sendRequest({
+                    url: "/ajax/system/add_usermenu",
+                    args: "user_name=" + user_name + "&menu_id=" + menu_id,
+                    onSuccess: function () {
+                        var userName = input.val();
+                        var txt = input.find("option:selected").text();
+                        _this.before('<span user_name="' + userName + '" class="enum-item">' + txt + '<span class="glyphicon glyphicon-remove"></span></span>');
+                    }
+                });
+            }
+        });
+    });
+    /***********删除菜单下的用户***********/
+    $("table.table").delegate("span.glyphicon-remove", "click", function () {
+        var _this = $(this);
+        var user_name = _this.parent().attr("user_name");
+        var menu_id = parseInt(_this.parents("tr[menu_id]").attr("menu_id"));
+        poiUtils.sendRequest({
+            url: "/ajax/system/del_usermenu",
+            args: "user_name=" + user_name + "&menu_id=" + menu_id,
+            onSuccess: function () {
+                _this.parent().remove();
+            }
+        });
+    });
+    /************删除菜单项************/
+    $("a[action='delMenuInfo']").click(function () {
+        var _this = $(this);
+        var menu_id = parseInt(_this.parents("tr[menu_id]").attr("menu_id"));
+        poiUtils.sendRequest({
+            url: "/ajax/system/del_menu",
+            args: "menu_id=" + menu_id,
+            onSuccess: function () {
+                _this.parent().parent().remove();
+            }
+        });
+    });
+    /***********初始化父菜单选择下拉框的数据***********/
+    var initParentSelect = function () {
+        var options = '<option value="0">&nbsp;</option>';
+        $("#menu_parent_menu").empty();
+        $.each(allMenuJsonStr, function (index, info) {
+            options += '<option value="' + info.menu_info.menu_id + '">' + info.menu_info.menu_name + '</option>';
+        });
+        $("#menu_parent_menu").append(options);
+    };
+    /***********初始化颜色选择器***********/
+    var initIconColor = function (color) {
+        $("#menu_icon_color").ColorPickerSliders({
+            placement: 'right',
+            flat: false,
+            color: color,
+            title: "选择菜单图标的颜色",
+            sliders: false,
+            swatches: false,
+            hsvpanel: true,
+            previewformat: 'hex'
+        });
+    };
+    /************编辑菜单信息************/
+    $("[action=\"editMenuInfo\"]").click(function () {
+        $("#menu_name").val("");
+        $("#menu_path").val("");
+        initParentSelect();
+        $("#menu_icon").val("");
+        $("#menu_icon_color").val("").css("background-color", "white");
+        $("#menu_desc").text("");
+        $("#menu_type").prop("checked", false);
+        var menu_id = parseInt($(this).parents("tr[menu_id]").attr("menu_id"));
+        menu_id = parseInt(menu_id);
+        if (isNaN(menu_id)) {
+            menu_id = 0;
+        }
+        $("#menu_menu_id").val(menu_id);
+        $("#menu_parent_menu").parents("div.form-group").show();
+        $("#menu_path").parents("div.form-group").show();
+        $("#menu_type").parents("div.form-group").show();
+        poiUtils.sendRequest({
+            url: "/ajax/system/get_menuinfo",
+            args: "menu_id=" + menu_id,
+            onSuccess: function (menu_info) {
+                var originColor = "";
+                if (!$.isEmptyObject(menu_info)) {
+                    $("#menu_name").val(menu_info.menu_name);
+                    $("#menu_path").val(menu_info.menu_path);
+                    $("#menu_icon").val(menu_info.menu_icon).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
+                    originColor = menu_info.menu_icon_color;
+                    $("#menu_desc").text(menu_info.menu_desc);
+                    if (parseInt(menu_info.menu_type) <= 1) {
+                        $("#menu_type").prop("checked", true);
+                    }
+                    //如果有父菜单，说明是子菜单
+                    if (parseInt(menu_info.menu_parent_id) > 0) {
+                        $("#menu_type").parents("div.form-group").hide();
+                        $("#menu_parent_menu option[value=0]").remove();
+                        $("#menu_parent_menu option[value=\"" + menu_info.menu_parent_id + "\"]").attr("selected", "true");
+
+                    } else {
+                        $("#menu_parent_menu").empty();
+                        $("#menu_parent_menu").attr("disabled", true);
+                        $("#menu_parent_menu").parents("div.form-group").hide();
+                        $("#menu_path").parents("div.form-group").hide();
+                    }
+                }
+                $("#menu_parent_menu").selectpicker("destroy").selectpicker({maxOptions: 1});
+                initIconColor(originColor);
+                $("#menu_edit_dialog").modal('show');
+            }
+        });
+    });
+    /************上调顺序************/
+    $("a[action='upMenuSort']").click(function () {
+        var trObj = $(this).parents("tr[menu_id]");
+        var prev = trObj.prev();
+        var menu_id = parseInt(trObj.attr("menu_id"));
+        if (isNaN(menu_id) || menu_id <= 0) {
+            return poiUtils.modalMsg({content: "get menu_id failed"});
+        }
+        poiUtils.sendRequest({
+            url: "/ajax/system/up_menusort",
+            args: "menu_id=" + menu_id,
+            onSuccess: function () {
+                window.location.reload();
+            }
+        });
+    });
+    /************下调顺序************/
+    $("a[action='downMenuSort']").click(function () {
+        var trObj = $(this).parents("tr[menu_id]");
+        var next = trObj.next();
+        var menu_id = parseInt(trObj.attr("menu_id"));
+        if (isNaN(menu_id) || menu_id <= 0) {
+            return poiUtils.modalMsg({content: "get menu_id failed"});
+        }
+        poiUtils.sendRequest({
+            url: "/ajax/system/down_menusort",
+            args: "menu_id=" + menu_id,
+            onSuccess: function () {
+                window.location.reload();
+            }
+        });
+    });
+    /************提交菜单信息************/
+    $("#edit_menu_submit_btn").click(function () {
+        var menu_id = $("#menu_menu_id").val();
+        menu_id = parseInt(menu_id);
+        if (isNaN(menu_id)) {
+            menu_id = 0;
+        }
+        var name = $("#menu_name").val();
+        var path = $("#menu_path").val();
+        var icon = $("#menu_icon").val();
+        var icon_color = $("#menu_icon_color").val();
+        var desc = $("#menu_desc").val();
+        var parent_menu_id = $("#menu_parent_menu").val();
+        parent_menu_id = parseInt(parent_menu_id);
+        if (isNaN(parent_menu_id)) {
+            parent_menu_id = 0;
+        }
+        var menu_type = $("#menu_type").is(":checked") ? 1 : 10;
+        var args = "menu_id=" + menu_id + "&menu_name=" + encodeURIComponent(name) + "&menu_path=" + encodeURIComponent(path);
+        args += "&menu_icon=" + icon + "&menu_icon_color=" + icon_color + "&menu_desc=" + encodeURIComponent(desc);
+        args += "&menu_parent_id=" + parent_menu_id + "&menu_type=" + menu_type;
+        poiUtils.sendRequest({
+            url: "/ajax/system/modify_menuinfo",
+            args: args,
+            onSuccess: function () {
+                location.reload(true);
+            }
+        });
+        return false;
+    });
+    /************展开子菜单************/
+    $("button[action='showsubmenu']").click(function () {
+        var menu_id = parseInt($(this).parents("tr[menu_id]").attr("menu_id"));
+        $("tr[parent_menu_id][parent_menu_id!=\"" + menu_id + "\"]").hide();
+        var sub = $("tr[parent_menu_id=\"" + menu_id + "\"]");
+        if (sub.is(":visible")) {
+            sub.hide();
+            location.hash = "";
+        } else {
+            sub.show();
+            location.hash = "#" + menu_id;
+        }
+    });
+    /************处理URL后跟的锚点信息************/
+    var menu_id = parseInt(location.hash.substring(1));
+    if (menu_id > 0) {
+        $("tr[parent_menu_id=\"" + menu_id + "\"]").show();
+    }
+    /************图标选择器************/
+    $("#menu_icon").popover({
+        html: true,
+        placement: "right",
+        title: "选择菜单图标",
+        container: "body",
+        content: function () {
+            var icons = "<div class='icon-picker'>";
+            $.each(bootstrapIconList, function (index, val) {
+                icons += '<span class="glyphicon ' + val + '"></span>';
+            });
+            icons += "</div>";
+            return icons;
+        }
+    }).on('shown.bs.popover', function () {
+        $("div.icon-picker > span").tooltip({
+            html: true,
+            placement: "auto",
+            title: function () {
+                var cs = "enlarge";
+                var cls = $(this).attr("class");
+                var t = "<span class='" + cls + " " + cs + "'></span>";
+                return t;
+            }
+        });
+    });
+    $("body").delegate("div.icon-picker > span", "click", function () {
+        var cls = $(this).attr("class");
+        cls = cls.split(" ");
+        cls = cls[1];
+        var oldCls = $("#menu_icon").val();
+        $("#menu_icon").val(cls).parent().find("span.glyphicon").removeClass(oldCls).addClass(cls);
+        $('#menu_icon').popover('hide')
+    });
+});
+</script>
 {{ template "footer" .}}
