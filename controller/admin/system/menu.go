@@ -12,6 +12,6 @@ type AdminSystemMenuController struct {
 
 //开始
 func (c *AdminSystemMenuController) Run() {
-	c.TplName = "system/menu.tpl"
+	c.TplName = "menu.tpl"
 	c.RenderHtml()
 }
