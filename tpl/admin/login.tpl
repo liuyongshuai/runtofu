@@ -1,4 +1,7 @@
 {{template "header" .}}
+<style>
+.login{width: 300px;margin-left:auto;margin-right:auto;padding-top:200px;}
+</style>
 <div class="login">
     <div class="form-horizontal" role="form">
         <div class="form-group" role="user_name">
@@ -20,7 +23,19 @@
         </div>
     </div>
 </div>
-<style>
-.login{width: 300px;margin-left:auto;margin-right:auto;padding-top:100px;}
-</style>
+<script>
+$( function(){
+    $("#login_submit_action").click( function(){
+        var user_name = $("#user_name");
+        var passwd = $("#passwd");
+        comUtils.sendRequest( {
+            url: "ajax/login",
+            args: "user_name=" + user_name + "&passwd=" + passwd,
+            onSuccess: function(){
+                location.reload( true );
+            }
+        } );
+    } );
+} );
+</script>
 {{template "footer" .}}
