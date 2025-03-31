@@ -16,7 +16,7 @@
     {{ static_js  "base.js" }}
     {{ static_css  "base.css" }}
     {{ static_css  "admin.css" }}
-    {{ static_js  "admin_base.js" }}
+    {{ static_js  "admin.js" }}
     <!--[if lt IE 9]>
      {{ static_js  "html5shiv.js" }}
     <![endif]-->

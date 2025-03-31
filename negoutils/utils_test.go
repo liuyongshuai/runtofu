@@ -50,6 +50,13 @@ func TestToDBC(t *testing.T) {
 	testEnd()
 }
 
+func TestRandomPassword(t *testing.T) {
+	passwd := "WenDao@19860512"
+	passcode := RandomStr(16)
+	passwd = MD5(passwd + passcode)
+	fmt.Println(passwd, passcode)
+}
+
 func TestLocalIP(t *testing.T) {
 	testStart()
 	localIps := LocalIP()
