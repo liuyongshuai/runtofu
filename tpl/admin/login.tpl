@@ -21,7 +21,6 @@
     </div>
 </div>
 <style>
-.form-horizontal{padding-top:100px;}
-div.form-group{width:300px;margin-left:auto;margin-right:auto;}
+.login{width: 300px;margin-left:auto;margin-right:auto;padding-top:100px;}
 </style>
 {{template "footer" .}}
