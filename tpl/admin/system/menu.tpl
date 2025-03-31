@@ -1,6 +1,4 @@
 {{ template "header" .}}
-{{ static_js  "colorpickersliders.js" }}
-{{ static_css  "colorpickersliders.css" }}
 <script>
     var menuList = {{json_encode .leftMenuList}};
 </script>
@@ -159,5 +157,4 @@
         </div>
     </div>
 </div>
-{{ static_js  "admin_menu.js" }}
 {{ template "footer" .}}
