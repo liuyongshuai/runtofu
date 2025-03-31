@@ -26,8 +26,8 @@
 <script>
 $( function(){
     $("#login_submit_action").click( function(){
-        var user_name = $("#user_name");
-        var passwd = $("#passwd");
+        var user_name = $("#user_name").val();
+        var passwd = $("#passwd").val();
         comUtils.sendRequest( {
             url: "ajax/login",
             args: "user_name=" + user_name + "&passwd=" + passwd,
