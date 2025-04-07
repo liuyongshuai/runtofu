@@ -243,8 +243,6 @@ $(function () {
         initParentSelect();
         $("#menu_icon_name").val("");
         $("#menu_icon_color").val("").css("background-color", "white");
-        $("#menu_desc").text("");
-        $("#menu_type").prop("checked", false);
         var menu_id = parseInt($(this).parents("tr[menu_id]").attr("menu_id"));
         menu_id = parseInt(menu_id);
         if (isNaN(menu_id)) {
@@ -253,7 +251,6 @@ $(function () {
         $("#menu_menu_id").val(menu_id);
         $("#menu_parent_menu").parents("div.form-group").show();
         $("#menu_path").parents("div.form-group").show();
-        $("#menu_type").parents("div.form-group").show();
         comUtils.sendRequest({
             url: "/ajax/system/getMenuInfo",
             args: "menu_id=" + menu_id,
@@ -264,13 +261,8 @@ $(function () {
                     $("#menu_path").val(menu_info.menu_path);
                     $("#menu_icon_name").val(menu_info.menu_icon).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
                     originColor = menu_info.menu_icon_color;
-                    $("#menu_desc").text(menu_info.menu_desc);
-                    if (parseInt(menu_info.menu_type) <= 1) {
-                        $("#menu_type").prop("checked", true);
-                    }
                     //如果有父菜单，说明是子菜单
                     if (parseInt(menu_info.menu_parent_id) > 0) {
-                        $("#menu_type").parents("div.form-group").hide();
                         $("#menu_parent_menu option[value=0]").remove();
                         $("#menu_parent_menu option[value=\"" + menu_info.menu_parent_id + "\"]").attr("selected", "true");
 
@@ -330,18 +322,15 @@ $(function () {
         var path = $("#menu_path").val();
         var icon = $("#menu_icon_name").val();
         var icon_color = $("#menu_icon_color").val();
-        var desc = $("#menu_desc").val();
         var parent_menu_id = $("#menu_parent_menu").val();
         parent_menu_id = parseInt(parent_menu_id);
         if (isNaN(parent_menu_id)) {
             parent_menu_id = 0;
         }
-        var menu_type = $("#menu_type").is(":checked") ? 1 : 10;
         var args = "menu_id=" + menu_id + "&menu_name=" + encodeURIComponent(name) + "&menu_path=" + encodeURIComponent(path);
-        args += "&menu_icon=" + icon + "&menu_icon_color=" + icon_color + "&menu_desc=" + encodeURIComponent(desc);
-        args += "&menu_parent_id=" + parent_menu_id + "&menu_type=" + menu_type;
+        args += "&icon_name=" + icon + "&icon_color=" + icon_color + "&menu_parent_id=" + parent_menu_id;
         comUtils.sendRequest({
-            url: "/ajax/system/modify_menuinfo",
+            url: "/ajax/system/modifyMenuInfo",
             args: args,
             onSuccess: function () {
                 location.reload(true);
