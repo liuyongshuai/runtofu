@@ -288,7 +288,7 @@ $(function () {
             return comUtils.modalMsg({content: "get menu_id failed"});
         }
         comUtils.sendRequest({
-            url: "/ajax/system/up_menusort",
+            url: "/ajax/system/upMenu",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
                 window.location.reload();
@@ -304,7 +304,7 @@ $(function () {
             return comUtils.modalMsg({content: "get menu_id failed"});
         }
         comUtils.sendRequest({
-            url: "/ajax/system/down_menusort",
+            url: "/ajax/system/downMenu",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
                 window.location.reload();
