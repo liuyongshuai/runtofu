@@ -262,9 +262,9 @@ $(function () {
                     $("#menu_icon_name").val(menu_info.icon_name).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
                     originColor = menu_info.icon_color;
                     //如果有父菜单，说明是子菜单
-                    if (parseInt(menu_info.menu_parent_id) > 0) {
+                    if (parseInt(menu_info.parent_menu_id) > 0) {
                         $("#menu_parent_menu option[value=0]").remove();
-                        $("#menu_parent_menu option[value=\"" + menu_info.menu_parent_id + "\"]").attr("selected", "true");
+                        $("#menu_parent_menu option[value=\"" + menu_info.parent_menu_id + "\"]").attr("selected", "true");
 
                     } else {
                         $("#menu_parent_menu").empty();
@@ -328,7 +328,7 @@ $(function () {
             parent_menu_id = 0;
         }
         var args = "menu_id=" + menu_id + "&menu_name=" + encodeURIComponent(name) + "&menu_path=" + encodeURIComponent(path);
-        args += "&icon_name=" + icon + "&icon_color=" + icon_color + "&menu_parent_id=" + parent_menu_id;
+        args += "&icon_name=" + icon + "&icon_color=" + icon_color + "&parent_menu_id=" + parent_menu_id;
         comUtils.sendRequest({
             url: "/ajax/system/modifyMenuInfo",
             args: args,
