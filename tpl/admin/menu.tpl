@@ -259,8 +259,8 @@ $(function () {
                 if (!$.isEmptyObject(menu_info)) {
                     $("#menu_name").val(menu_info.menu_name);
                     $("#menu_path").val(menu_info.menu_path);
-                    $("#menu_icon_name").val(menu_info.menu_icon).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
-                    originColor = menu_info.menu_icon_color;
+                    $("#menu_icon_name").val(menu_info.icon_name).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
+                    originColor = menu_info.icon_color;
                     //如果有父菜单，说明是子菜单
                     if (parseInt(menu_info.menu_parent_id) > 0) {
                         $("#menu_parent_menu option[value=0]").remove();
