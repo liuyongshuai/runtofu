@@ -42,12 +42,12 @@
                 <td>{{.MenuInfo.MenuPath}}</td>
                 <td>
                     <div class="btn-group btn-group-xs">
-                        <a href="javascript:void(0);" action="editmenu" type="button" class="btn btn-link">编辑</a>
-                        <a href="javascript:void(0);" action="delmenu" type="button" class="btn btn-link">删除</a>
-                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="upmenu">
+                        <a href="javascript:void(0);" action="editMenuInfo" type="button" class="btn btn-link">编辑</a>
+                        <a href="javascript:void(0);" action="delMenuInfo" type="button" class="btn btn-link">删除</a>
+                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="upMenuSort">
                             <span class="glyphicon glyphicon-arrow-up"></span>
                         </a>
-                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="downmenu">
+                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="downMenuSort">
                             <span class="glyphicon glyphicon-arrow-down"></span>
                         </a>
                     </div>
@@ -75,12 +75,12 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-xs">
-                                        <a href="javascript:void(0);" action="editmenu" type="button" class="btn btn-link">编辑</a>
-                                        <a href="javascript:void(0);" action="delmenu" type="button" class="btn btn-link">删除</a>
-                                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="upmenu">
+                                        <a href="javascript:void(0);" action="editMenuInfo" type="button" class="btn btn-link">编辑</a>
+                                        <a href="javascript:void(0);" action="delMenuInfo" type="button" class="btn btn-link">删除</a>
+                                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="upMenuSort">
                                             <span class="glyphicon glyphicon-arrow-up"></span>
                                         </a>
-                                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="downmenu">
+                                        <a href="javascript:void(0);" type="button" class="btn btn-link" action="downMenuSort">
                                             <span class="glyphicon glyphicon-arrow-down"></span>
                                         </a>
                                     </div>
