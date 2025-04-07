@@ -7,22 +7,11 @@ package ajax
 
 import (
 	"fmt"
+	"github.com/liuyongshuai/runtofu/controller"
 	"github.com/liuyongshuai/runtofu/controller/admin"
 	"github.com/liuyongshuai/runtofu/negoutils"
 	"strings"
 )
-
-// ajax响应信息里result部分
-type AjaxResponseResult struct {
-	Errno  int64  `json:"errno"`  //返回的错误码
-	ErrMsg string `json:"errmsg"` //返回的错误信息
-}
-
-// ajax响应总体返回的数据格式
-type AjaxResponseData struct {
-	Result AjaxResponseResult `json:"result"`
-	Data   interface{}        `json:"data"`
-}
 
 // Ajax层的基类
 type AdminAjaxBaseController struct {
@@ -57,11 +46,9 @@ func (bc *AdminAjaxBaseController) Notice(d interface{}, ret ...interface{}) {
 	if strings.Count(errmsg, "%") > 0 {
 		errmsg = fmt.Sprintf(errmsg, f)
 	}
-	bc.RenderJson(AjaxResponseData{
-		Result: AjaxResponseResult{
-			Errno:  errno,
-			ErrMsg: errmsg,
-		},
-		Data: d,
+	bc.RenderJson(controller.AjaxResponseResult{
+		Errcode: errno,
+		ErrMsg:  errmsg,
+		Data:    d,
 	})
 }

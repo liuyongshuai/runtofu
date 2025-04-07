@@ -7,22 +7,11 @@ package ajax
 
 import (
 	"fmt"
+	"github.com/liuyongshuai/runtofu/controller"
 	"github.com/liuyongshuai/runtofu/controller/blog"
 	"github.com/liuyongshuai/runtofu/negoutils"
 	"net/http"
 )
-
-// ajax响应信息里result部分
-type AjaxResponseResult struct {
-	Errno  int64  `json:"errno"`  //返回的错误码
-	ErrMsg string `json:"errmsg"` //返回的错误信息
-}
-
-// ajax响应总体返回的数据格式
-type AjaxResponseData struct {
-	Result AjaxResponseResult `json:"result"`
-	Data   interface{}        `json:"data"`
-}
 
 // Ajax层的基类
 type RunToFuAjaxBaseController struct {
@@ -49,11 +38,9 @@ func (bc *RunToFuAjaxBaseController) Notice(d interface{}, ret ...interface{}) {
 	if len(ret) > 1 {
 		errmsg = negoutils.MakeElemType(ret[1]).ToString()
 	}
-	bc.RenderJson(AjaxResponseData{
-		Result: AjaxResponseResult{
-			Errno:  errno,
-			ErrMsg: errmsg,
-		},
-		Data: d,
+	bc.RenderJson(controller.AjaxResponseResult{
+		Errcode: errno,
+		ErrMsg:  errmsg,
+		Data:    d,
 	})
 }
