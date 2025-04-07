@@ -218,7 +218,7 @@ $(function () {
     var initParentSelect = function () {
         var options = '<option value="0">&nbsp;</option>';
         $("#menu_parent_menu").empty();
-        $.each(allMenuJsonStr, function (index, info) {
+        $.each(menuList, function (index, info) {
             options += '<option value="' + info.menu_info.menu_id + '">' + info.menu_info.menu_name + '</option>';
         });
         $("#menu_parent_menu").append(options);
