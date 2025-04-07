@@ -207,7 +207,7 @@ $(function () {
         var _this = $(this);
         var menu_id = parseInt(_this.parents("tr[menu_id]").attr("menu_id"));
         comUtils.sendRequest({
-            url: "/ajax/system/del_menu",
+            url: "/ajax/system/delMenu",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
                 _this.parent().parent().remove();
