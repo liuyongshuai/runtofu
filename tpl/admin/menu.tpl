@@ -210,7 +210,7 @@ $(function () {
             url: "/ajax/system/delMenu",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
-                _this.parent().parent().remove();
+                _this.parent().parent().parent().remove();
             }
         });
     });
