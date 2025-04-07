@@ -66,9 +66,9 @@ func (bc *AdminAjaxSystemController) getMenuInfo() {
 // 获取菜单详细信息
 func (bc *AdminAjaxSystemController) modifyMenuInfo() {
 	menuId, _ := bc.GetParam("menu_id", 0).ToInt()
-	name := bc.GetParam("name", "").ToString()
-	path := bc.GetParam("path", "").ToString()
-	icon := bc.GetParam("icon", "").ToString()
+	name := bc.GetParam("menu_name", "").ToString()
+	path := bc.GetParam("menu_path", "").ToString()
+	icon := bc.GetParam("icon_name", "").ToString()
 	iconColor := bc.GetParam("icon_color", "").ToString()
 	parentId, _ := bc.GetParam("parent_menu_id", -1).ToInt()
 
