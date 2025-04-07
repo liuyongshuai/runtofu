@@ -177,7 +177,7 @@ $(function () {
             selectUrl: "/ajax/system/get_nopriv_userlist?menu_id=" + menu_id,
             onConfirm: function (input) {
                 var user_name = input.val();
-                poiUtils.sendRequest({
+                comUtils.sendRequest({
                     url: "/ajax/system/add_usermenu",
                     args: "user_name=" + user_name + "&menu_id=" + menu_id,
                     onSuccess: function () {
@@ -194,7 +194,7 @@ $(function () {
         var _this = $(this);
         var user_name = _this.parent().attr("user_name");
         var menu_id = parseInt(_this.parents("tr[menu_id]").attr("menu_id"));
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/del_usermenu",
             args: "user_name=" + user_name + "&menu_id=" + menu_id,
             onSuccess: function () {
@@ -206,7 +206,7 @@ $(function () {
     $("a[action='delMenuInfo']").click(function () {
         var _this = $(this);
         var menu_id = parseInt(_this.parents("tr[menu_id]").attr("menu_id"));
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/del_menu",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
@@ -254,7 +254,7 @@ $(function () {
         $("#menu_parent_menu").parents("div.form-group").show();
         $("#menu_path").parents("div.form-group").show();
         $("#menu_type").parents("div.form-group").show();
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/getMenuInfo",
             args: "menu_id=" + menu_id,
             onSuccess: function (menu_info) {
@@ -293,9 +293,9 @@ $(function () {
         var prev = trObj.prev();
         var menu_id = parseInt(trObj.attr("menu_id"));
         if (isNaN(menu_id) || menu_id <= 0) {
-            return poiUtils.modalMsg({content: "get menu_id failed"});
+            return comUtils.modalMsg({content: "get menu_id failed"});
         }
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/up_menusort",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
@@ -309,9 +309,9 @@ $(function () {
         var next = trObj.next();
         var menu_id = parseInt(trObj.attr("menu_id"));
         if (isNaN(menu_id) || menu_id <= 0) {
-            return poiUtils.modalMsg({content: "get menu_id failed"});
+            return comUtils.modalMsg({content: "get menu_id failed"});
         }
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/down_menusort",
             args: "menu_id=" + menu_id,
             onSuccess: function () {
@@ -340,7 +340,7 @@ $(function () {
         var args = "menu_id=" + menu_id + "&menu_name=" + encodeURIComponent(name) + "&menu_path=" + encodeURIComponent(path);
         args += "&menu_icon=" + icon + "&menu_icon_color=" + icon_color + "&menu_desc=" + encodeURIComponent(desc);
         args += "&menu_parent_id=" + parent_menu_id + "&menu_type=" + menu_type;
-        poiUtils.sendRequest({
+        comUtils.sendRequest({
             url: "/ajax/system/modify_menuinfo",
             args: args,
             onSuccess: function () {
