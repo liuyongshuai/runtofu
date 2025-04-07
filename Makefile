@@ -38,6 +38,7 @@ prepare:
 	cp -vr "$(TEMPLATE_DIR)" "$(OUTPUT)"
 	cp -vr "$(STATIC_DIR)" "$(OUTPUT)"
 	cp -v "$(CURDIR)/control.sh" "$(OUTPUT)"
+	cp -v "$(CURDIR)/deploy.sh" "$(OUTPUT)"
 
 run:
 	cd "$(OUTPUT)" && bin/$(APP)
