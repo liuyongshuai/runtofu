@@ -5,7 +5,7 @@
 
 {{/**新建菜单的按钮**/}}
 <div class="action-wrapper">
-    <a href="javascript:void(0);" action="editmenu" type="button" class="btn btn-default pull-right">添加菜单</a>
+    <a href="javascript:void(0);" action="editMenuInfo" type="button" class="btn btn-default pull-right">添加菜单</a>
 </div>
 
 {{/******菜单列表******/}}
@@ -255,7 +255,7 @@ $(function () {
         $("#menu_path").parents("div.form-group").show();
         $("#menu_type").parents("div.form-group").show();
         poiUtils.sendRequest({
-            url: "/ajax/system/get_menuinfo",
+            url: "/ajax/system/getMenuInfo",
             args: "menu_id=" + menu_id,
             onSuccess: function (menu_info) {
                 var originColor = "";
