@@ -225,7 +225,7 @@ $(function () {
     };
     /***********初始化颜色选择器***********/
     var initIconColor = function (color) {
-        $("#menu_icon_name").ColorPickerSliders({
+        $("#menu_icon_color").ColorPickerSliders({
             placement: 'right',
             flat: false,
             color: color,
@@ -241,7 +241,7 @@ $(function () {
         $("#menu_name").val("");
         $("#menu_path").val("");
         initParentSelect();
-        $("#menu_icon").val("");
+        $("#menu_icon_name").val("");
         $("#menu_icon_color").val("").css("background-color", "white");
         $("#menu_desc").text("");
         $("#menu_type").prop("checked", false);
@@ -262,7 +262,7 @@ $(function () {
                 if (!$.isEmptyObject(menu_info)) {
                     $("#menu_name").val(menu_info.menu_name);
                     $("#menu_path").val(menu_info.menu_path);
-                    $("#menu_icon").val(menu_info.menu_icon).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
+                    $("#menu_icon_name").val(menu_info.menu_icon).parent().find("span.glyphicon").addClass(menu_info.menu_icon);
                     originColor = menu_info.menu_icon_color;
                     $("#menu_desc").text(menu_info.menu_desc);
                     if (parseInt(menu_info.menu_type) <= 1) {
@@ -328,7 +328,7 @@ $(function () {
         }
         var name = $("#menu_name").val();
         var path = $("#menu_path").val();
-        var icon = $("#menu_icon").val();
+        var icon = $("#menu_icon_name").val();
         var icon_color = $("#menu_icon_color").val();
         var desc = $("#menu_desc").val();
         var parent_menu_id = $("#menu_parent_menu").val();
@@ -368,7 +368,7 @@ $(function () {
         $("tr[parent_menu_id=\"" + menu_id + "\"]").show();
     }
     /************图标选择器************/
-    $("#menu_icon").popover({
+    $("#menu_icon_name").popover({
         html: true,
         placement: "right",
         title: "选择菜单图标",
@@ -397,9 +397,9 @@ $(function () {
         var cls = $(this).attr("class");
         cls = cls.split(" ");
         cls = cls[1];
-        var oldCls = $("#menu_icon").val();
-        $("#menu_icon").val(cls).parent().find("span.glyphicon").removeClass(oldCls).addClass(cls);
-        $('#menu_icon').popover('hide')
+        var oldCls = $("#menu_icon_name").val();
+        $("#menu_icon_name").val(cls).parent().find("span.glyphicon").removeClass(oldCls).addClass(cls);
+        $('#menu_icon_name').popover('hide')
     });
 });
 </script>
