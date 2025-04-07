@@ -1,6 +1,6 @@
 {{ template "header" .}}
 <script>
-    var menuList = {{json_encode .leftMenuList}};
+    var menuList = eval({{json_encode .leftMenuList}});
 </script>
 
 {{/**新建菜单的按钮**/}}
