@@ -225,7 +225,7 @@ $(function () {
     };
     /***********初始化颜色选择器***********/
     var initIconColor = function (color) {
-        $("#menu_icon_color").ColorPickerSliders({
+        $("#menu_icon_name").ColorPickerSliders({
             placement: 'right',
             flat: false,
             color: color,
